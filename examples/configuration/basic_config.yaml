@@ -1,0 +1,4 @@
+analysis:
+  analyzer_type: python
+storage:
+  store_type: python
