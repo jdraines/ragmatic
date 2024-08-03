@@ -5,7 +5,7 @@ from openai import OpenAI
 from tenacity import retry, stop_after_attempt, wait_random_exponential
 
 from .bases import MetadataUnit, ModuleData, ClassData, FunctionData, StringTypes as st
-from ...llm_ops.clients import get_llm_client, LLMClient
+from ...llm_ops.client_factory import get_llm_client_class, LLMClient
 
 
 class PyCodeSummaryUnit(MetadataUnit):
@@ -13,7 +13,7 @@ class PyCodeSummaryUnit(MetadataUnit):
     def __init__(self, modules: Dict[st.ModuleName, ModuleData], llm_client_config: dict = None):
         self.modules: Dict[st.ModuleName, ModuleData] = modules
         llm_client_type = llm_client_config.pop("type")
-        self.client: LLMClient = get_llm_client(llm_client_type, (llm_client_config or {}))
+        self.client: LLMClient = get_llm_client_class(llm_client_type)(llm_client_config or {})
 
     def analyze_file(self, module_data: ModuleData):
         tree = module_data.pytree
