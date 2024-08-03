@@ -9,14 +9,15 @@ class LLMConfig(BaseModel):
         extra = "allow"
 
 
-class AnalysisConfig(BaseModel):
-    analyzer_type: Literal["python"]
-    llm_config: Optional[LLMConfig] = Field(default=None)
-
-
 class EmbeddingConfig(BaseModel):
     embedding_type: Literal["hugging_face"]
     embedding_config: dict = Field(default_factory=dict)
+
+
+class AnalysisConfig(BaseModel):
+    analyzer_type: Literal["python"]
+    llm_config: Optional[LLMConfig] = Field(default=None)
+    embedding_config: Optional[EmbeddingConfig] = Field(default=None)
 
 
 class StorageConfig(BaseModel):
@@ -27,12 +28,10 @@ class StorageConfig(BaseModel):
 class ServiceConfig(BaseModel):
     type: str
     llm_config: LLMConfig
-    class Config:
-        extra = "allow"
+    embedding_config: EmbeddingConfig
 
 
 class MasterConfig(BaseModel):
     analysis: Optional[AnalysisConfig] = Field(default=None)
-    embedding: Optional[EmbeddingConfig] = Field(default=None)
     storage: Optional[StorageConfig] = Field(default=None)
     service: Optional[ServiceConfig] = Field(default=None)

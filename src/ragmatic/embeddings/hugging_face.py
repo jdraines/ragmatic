@@ -2,6 +2,7 @@ import os
 import typing as t
 from itertools import product
 
+from pydantic import BaseModel
 import torch
 import torch.nn.functional as F
 from transformers import AutoModelForCausalLM, AutoModel, AutoTokenizer
@@ -18,6 +19,13 @@ def _get_salesforce_model_names():
     return [_get_model_name(size, data) for size, data in product(sizes, data)]
 
 
+class HuggingFaceEmbeddingConfig(BaseModel):
+    model_name: str
+    tokenizer_config: dict = {}
+    save_filepath: str = "embedding_model.pkl"
+    save_model: bool = True
+
+
 class HuggingFaceTransformerEmbedder(Embedder):
 
     embedder_name = "hugging_face"
@@ -31,7 +39,6 @@ class HuggingFaceTransformerEmbedder(Embedder):
         self.tokenizer_config = config.get("tokenizer_config", {})
         self.save_filepath = config.get("save_filepath", "embedding_model.pkl")
         self.save_model: bool = config.get("save_model", True)
-        self.prompt_name = config.get("prompt_name", "s2s_query")
         self._auto_model_class = self._init_auto_model_class()
         self._model = None
         self._tokenizer = None
