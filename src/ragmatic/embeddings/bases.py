@@ -4,6 +4,8 @@ import typing as t
 
 class Embedder:
 
+    embedder_name: str = None
+
     @abstractmethod
     def __init__(self, config):
         pass

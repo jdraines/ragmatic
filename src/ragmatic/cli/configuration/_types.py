@@ -15,9 +15,8 @@ class AnalysisConfig(BaseModel):
 
 
 class EmbeddingConfig(BaseModel):
-    type: str
-    class Config:
-        extra = "allow"
+    embedding_type: Literal["hugging_face"]
+    embedding_config: dict = Field(default_factory=dict)
 
 
 class StorageConfig(BaseModel):
