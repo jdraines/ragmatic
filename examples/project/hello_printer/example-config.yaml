@@ -1,0 +1,26 @@
+project_name: hello_printer
+root_path: <!update>/examples/project/hello_printer/src
+storage:
+  localpy:
+    store_type: omni
+    store_name: pydict
+    store_config:
+      dirpath: <!update>/examples/project/hello_printer/
+summarization:
+  summarizer_type: python_code
+  summarizer_config:
+    llm_client_type: openai
+    llm_config:
+      api_keyenvvar: OPENAI_API_KEY
+  storage: localpy
+embeddings:
+  embedding_type: hugging_face
+  embedding_config:
+    model_name: stella_en_1.5B_v5
+    tokenizer_config:
+      return_tensors: pt
+      max_length: 1024
+      truncation: True
+      padding: max_length
+    save_model: False
+  storage: localpy
