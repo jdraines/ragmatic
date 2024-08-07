@@ -64,6 +64,9 @@ class PydictOmniStore(MetadataStore, VectorStore, SummaryStore):
     def get_summary(self, key: str):
         return self._summary_store.get_summary(key)
     
+    def get_all_summaries(self):
+        return self._summary_store.get_all_summaries()
+
     def __getattr__(self, name):
         if hasattr(self._metadata_store, name):
             return getattr(self._metadata_store, name)

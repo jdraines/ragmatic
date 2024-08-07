@@ -38,3 +38,6 @@ class PydictSummaryStore(SummaryStore):
 
     def get_summary(self, key: str):
         return self._data.get(key)
+
+    def get_all_summaries(self):
+        return self._data

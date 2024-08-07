@@ -56,3 +56,7 @@ class SummaryStore(ABC):
     @abstractmethod
     def get_summary(self, key: str):
         pass
+
+    @abstractmethod
+    def get_all_summaries(self):
+        pass
