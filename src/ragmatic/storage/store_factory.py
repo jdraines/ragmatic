@@ -1,15 +1,27 @@
+from ..utils import import_object
 from .bases import MetadataStore
-from .es_store import ElasticsearchMetadataStore
-from .py_store import PyStore
 
 
-_stores = {
-    ElasticsearchMetadataStore.store_name: ElasticsearchMetadataStore,
-    PyStore.store_name: PyStore,
+_metadata_stores = {
+    "elasticsearch": "ragmatic.storage.es_store.ElasticsearchMetadataStore",
+    "pydict": "ragmatic.storage.pydict.metadata_store.PydictMetadataStore"
+}
+
+_vector_stores = {
+    "pydict": "ragmatic.storage.pydict.vector_store.PydictVectorStore"
+}
+
+_summary_stores =  {
+    "pydict": "ragmatic.storage.pydict.summary_store.PydictSummaryStore"
+}
+
+_omni_stores = {
+    "pydict": "ragmatic.storage.pydict.omni_store.PydictOmniStore"
 }
 
 
-def get_store_cls(store_name: str) -> MetadataStore:
-    if store_name not in _stores:
+def get_store_cls(store_type:str, store_name: str) -> MetadataStore:
+    store_dict = globals().get(f"_{store_type}_stores")
+    if store_name not in store_dict:
         raise ValueError(f"Store {store_name} not found")
-    return _stores[store_name]
+    return import_object(store_dict[store_name])

@@ -13,7 +13,7 @@ class MessageBox:
 
 class ContentBase:
 
-    def __init__(self, msg: MessageBox):
+    def __init__(self, msg: str):
         self.msg = msg
 
     def get_content(self):
@@ -59,7 +59,7 @@ class LLMClientBase(LLMClient):
 
     def _load_api_key(self) -> str:
         if self._api_keyenvvar:
-            return os.environ.get(self._api_keyenvvar)
+            return self._b64key(os.environ.get(self._api_keyenvvar))
         if self._api_keypath:
             with open(self._api_keypath, "r") as f:
                 return self._b64key(f.read().strip())

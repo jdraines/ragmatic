@@ -11,7 +11,6 @@ from .metadata_units import (
     TypeInfoUnit,
     AttributeAccessUnit,
     MetadataUnit,
-    PyCodeSummaryUnit,
     CodeMetricsUnit,
     ModuleData,
     StringTypes as st
@@ -24,16 +23,15 @@ class PyCodebaseAnalyzer(CodebaseAnalyzerBase):
     analyzer_type = "python"
     file_filters: List = [(lambda x: x.endswith('.py'))]
 
-    def __init__(self, root_dir: str, llm_config: dict = None):
+    def __init__(self, root_dir: str):
         self.root_dir = root_dir
-        self.llm_config = llm_config
         self.module_graph = nx.DiGraph()
         self.ca = defaultdict(int)
         self.ce = defaultdict(int)
         self.modules: Dict[st.ModuleName, ModuleData] = {}
         self.metadata_units = self._initialize_metadata_units()
         self.analyzed_modules = set()
-        super().__init__(root_dir, llm_config)
+        super().__init__(root_dir)
 
     def _initialize_metadata_units(self) -> List[MetadataUnit]:
         units = [
@@ -44,8 +42,6 @@ class PyCodebaseAnalyzer(CodebaseAnalyzerBase):
             AttributeAccessUnit(self.modules),
             CodeMetricsUnit(self.modules, self.module_graph)
         ]
-        if self.llm_config is not None:
-            units.append(PyCodeSummaryUnit(self.modules, self.llm_config))
         return units
 
     def analyze_file(self, file_path: str):

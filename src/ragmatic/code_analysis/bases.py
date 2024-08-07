@@ -15,9 +15,8 @@ class CodebaseAnalyzerBase:
     metadata_units: List[MetadataUnit] = None
     file_filters: List[Callable[[str], bool]] = [(lambda x: True)]
 
-    def __init__(self, root_dir: str, llm_config: dict = None):
+    def __init__(self, root_dir: str):
         self.root_dir = root_dir
-        self.llm_config = llm_config
         if not self.modules:
             self.modules: Dict[st.ModuleName, ModuleData] = {}
         if not self.analyzed_modules:

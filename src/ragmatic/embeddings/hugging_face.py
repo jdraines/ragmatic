@@ -99,7 +99,7 @@ class HuggingFaceTransformerEmbedder(Embedder):
 
     def _encode_chunk(self, doc):
         self.tokenizer.pad_token = self.tokenizer.eos_token
-        inputs = self.tokenizer(doc, return_tensors="pt", max_length=1024, truncation=True, padding="max_length")
+        inputs = self.tokenizer(doc, **self.tokenizer_config)
         with torch.no_grad():
             outputs = self.model(**inputs, output_hidden_states=True)
         last_hidden_state = outputs.hidden_states[-1]

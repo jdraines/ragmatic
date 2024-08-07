@@ -1,4 +1,5 @@
 from openai import OpenAI
+import logging
 
 from .bases import LLMClientBase, ContentBase, LLMState
 
@@ -6,7 +7,7 @@ from .bases import LLMClientBase, ContentBase, LLMState
 class OpenAIContent(ContentBase):
 
     def get_content(self):
-        return self.msg.msg
+        return self.msg
 
 
 class OpenAIClient(LLMClientBase):
@@ -16,7 +17,13 @@ class OpenAIClient(LLMClientBase):
     def __init__(self, config: dict):
         super().__init__(config)
         self.model = config.get("model", "gpt-4o")
+        self._log_level = config.get("log_level", logging.WARNING)
         self.client = self._get_client()
+        self._set_openai_log_level(self._log_level)
+
+    def _set_openai_log_level(self, level: str):
+        logging.getLogger("openai").setLevel(level)
+        logging.getLogger("httpx").setLevel(level)
 
     def _get_client(self):
         return OpenAI(api_key=self._plaintextkey())
@@ -30,7 +37,6 @@ class OpenAIClient(LLMClientBase):
         if system_prompt:
             messages.append({"role": "system", "content": system_prompt})
         messages.append({"role": role, "content": OpenAIContent(message).get_content()})
-        
         response = self.client.chat.completions.create(
             model=self.model,
             messages=messages    

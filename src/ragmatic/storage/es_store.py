@@ -1,14 +1,14 @@
 import json
 from .bases import MetadataStore
 from ..code_analysis.metadata_units.bases import ModuleData
+from elasticsearch import Elasticsearch
 
 
 class ElasticsearchMetadataStore(MetadataStore):
 
-    store_name = 'elasticsearch'
+    name = 'elasticsearch'
 
     def __init__(self, config):
-        from elasticsearch import Elasticsearch
         self.index_name = config.pop('index_name')
         self._module_name_field = config.pop('module_name_field', "name")
         self._index_mapping_loc = config.pop('index_mapping_loc')

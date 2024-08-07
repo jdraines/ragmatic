@@ -3,15 +3,16 @@ from joblib import Parallel, delayed
 import difflib
 import typing as t
 import re
+import os
 
-from .bases import MetadataStore
-from ..code_analysis.metadata_units.bases import ModuleData
+from ...code_analysis.metadata_units.bases import ModuleData
 
 
 PARALLELIZATION_THRESHOLD = 1_000
 
 
 class MapOp:
+    
     def __init__(self, config):
         pass
     def map(self, callable, inputs_iterable):
@@ -47,11 +48,17 @@ class JoblibParallelMap(MapOp):
         self.parallel = None
 
 
+class PydictObjStore:
+    name = 'pydict'
+    _allowed_query_keys = []
+    """
+    Provides a list of supported query keys. The keys can be simple or nested.
+    The nested keys are separated by a dot. The nested keys can also contain
+    a wildcard `{*}` which is used to indicate that the key should be applied
+    to all items in a collection.
 
-class PyStore(MetadataStore):
-
-    store_name = 'python'
-    _allowed_query_keys = [
+    Example:
+    [
         "name",
         "imports",
         "classes",
@@ -70,6 +77,8 @@ class PyStore(MetadataStore):
         r"functions.{*}.metrics.cyclomatic_complexity",
         r"functions.{*}.return_type",
     ]
+    """
+
     _operators = {
         "eq": lambda x, y: x == y,
         "ne": lambda x, y: x != y,
@@ -104,7 +113,8 @@ class PyStore(MetadataStore):
     def __init__(self, config):
         self.config = config
         self.always_parallel = config.get("always_parallel", False)
-        self.filepath = config.get("filepath", self._default_filepath)
+        self.filepath = os.path.expanduser(config.get("filepath", self._default_filepath))
+        self._allowed_query_keys = config.get("allowed_query_keys", self._allowed_query_keys)
         self.__data = None
 
     @property
@@ -113,24 +123,12 @@ class PyStore(MetadataStore):
             self._load_module_data()
         return self.__data
     
+    
     def get_mapper(self):
         if len(self._data) > PARALLELIZATION_THRESHOLD or self.always_parallel:
             return JoblibParallelMap({"n_jobs": -1})
         return NoMap({})
 
-    def store_all_module_data(self, modules: dict[str, ModuleData]):
-        if self.__data is None:
-            self.__data = {}
-        for _, module_data in modules.items():
-            self.store_module_data(module_data)
-
-    def store_module_data(self, module_data: ModuleData):
-        if self.__data is None:
-            self._load_module_data()
-        self.__data[module_data.name] = module_data
-        with open(self.filepath, "wb") as f:
-            pickle.dump(self._data, f)
-    
     def _load_module_data(self):
         try:
             with open(self.filepath, "rb") as f:
@@ -138,7 +136,7 @@ class PyStore(MetadataStore):
         except FileNotFoundError:
             self.__data = {}
 
-    def query_modules(self, query: list[tuple[str, str, t.Any]]):
+    def query_data(self, query: list[tuple[str, str, t.Any]]):
         query_ops = []
         for line in query:
             self._validate_query_line(line)
@@ -228,5 +226,8 @@ class PyStore(MetadataStore):
         else:
             return module_name, self._operators[operator](mod_value, value)
 
-    def get_module(self, module_name: str):
-        return self._data.get(module_name)
+    def get_data(self, key: str):
+        return self._data.get(key)
+
+
+    
