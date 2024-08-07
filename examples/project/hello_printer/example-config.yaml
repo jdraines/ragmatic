@@ -1,11 +1,11 @@
 project_name: hello_printer
-root_path: <!update>/examples/project/hello_printer/src
+root_path: ./src  # a relative path in this case implies you will run the `ragmatic` command within this same directory
 storage:
   localpy:
     store_type: omni
     store_name: pydict
     store_config:
-      dirpath: <!update>/examples/project/hello_printer/
+      dirpath: ./data # a relative path in this case implies you will run the `ragmatic` command within this same directory
 summarization:
   summarizer_type: python_code
   summarizer_config:
@@ -16,7 +16,7 @@ summarization:
 embeddings:
   embedding_type: hugging_face
   embedding_config:
-    model_name: stella_en_1.5B_v5
+    model_name: "dunzhang/stella_en_1.5B_v5"
     tokenizer_config:
       return_tensors: pt
       max_length: 1024

@@ -3,9 +3,12 @@ import os
 import numpy as np
 import re
 from collections import OrderedDict
+from logging import getLogger
 
 from ..bases import VectorStore
 
+
+logger = getLogger(__name__)
 
 
 class QueryMethod:
@@ -65,6 +68,8 @@ class PydictVectorStore(VectorStore):
 
     def store_vectors(self, vectors: dict[str, np.ndarray]):
         self._data.update(vectors)
+        logger.info(f"Storing vectors to {self.filepath}")
+        self._write_vectors(self._data)
 
     def get_vectors(self, keys: list[str]):
         return [self._data.get(key) for key in keys]

@@ -1,7 +1,10 @@
 import os
 import typing as t
 from itertools import product
+from logging import getLogger
 
+import tqdm
+import numpy as np
 from pydantic import BaseModel
 import torch
 import torch.nn.functional as F
@@ -9,6 +12,8 @@ from transformers import AutoModelForCausalLM, AutoModel, AutoTokenizer
 from sklearn.preprocessing import normalize
 
 from .bases import Embedder
+
+logger = getLogger(__name__)
 
 
 def _get_salesforce_model_names():
@@ -59,21 +64,32 @@ class HuggingFaceTransformerEmbedder(Embedder):
         return self._tokenizer
 
     def _download_model(self):
+        logger.info(f"Downloading model {self.model_name!r}")
         self._model = self._auto_model_class.from_pretrained(self.model_name)
         if self.save_model:
+            logger.info(f"Saving model to {self.save_filepath}")
             self._model.save(self.save_filepath)
+        logger.info(f"Downloading tokenizer {self.model_name!r}")
         self._tokenizer = AutoTokenizer.from_pretrained(self.model_name)
         if self.save_model:
             tokenizer_filepath = os.path.dirname(self.save_filepath) + "/tokenizer.pkl"
+            logger.info(f"Saving model to {tokenizer_filepath}")
             self._tokenizer.save_pretrained(tokenizer_filepath)
 
     def _load_model(self):
+        logger.info(f"Loading model from {self.save_filepath}")
         self._model = self._auto_model_class(self.save_filepath, trust_remote_code=True)
         tokenizer_filepath = os.path.dirname(self.save_filepath) + "/tokenizer.pkl"
+        logger.info(f"Loading tokenizer from  {tokenizer_filepath}")
         self._tokenizer = AutoTokenizer.from_pretrained(tokenizer_filepath)
 
     def encode(self, docs: t.Sequence[str]) -> t.Sequence[t.Sequence[float]]:
-        return [self._encode_doc(doc) for doc in docs]
+        embeddings = []
+        for doc in tqdm.tqdm(docs):
+            embeddings.append(
+                self._encode_doc(doc)
+            )
+        return embeddings
 
     def _init_auto_model_class(self):
         if self.model_name in self._causal_lm_models:
@@ -93,8 +109,12 @@ class HuggingFaceTransformerEmbedder(Embedder):
         chunks = self.chunk_text(doc)
         embeddings = []
         for chunk in chunks:
-            embeddings.append(self._encode_chunk(chunk))
-        return torch.mean(torch.stack(embeddings), dim=0).numpy()
+            embedding = self._encode_chunk(chunk)
+            if isinstance(embedding, np.ndarray):
+                embedding = torch.from_numpy(embedding)
+            embeddings.append(embedding)
+        embedding_stack = torch.stack(embeddings)
+        return torch.mean(embedding_stack, dim=0).numpy()
 
 
     def _encode_chunk(self, doc):
