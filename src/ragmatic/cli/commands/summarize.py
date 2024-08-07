@@ -16,17 +16,28 @@ def summarize_cmd(config):
     if not config.summarization:
         raise ValueError("No summarization configuration found in the provided configuration file")
     if not config.summarization.storage:
-        raise ValueError("No storage specified found summarization configuration")
+        raise ValueError("No storage specification found in summarization configuration")
     storage: str = config.summarization.storage
     if storage not in config.storage:
         raise ValueError(f"Storage configuration for {storage} not found in the provided configuration file")
     
+    if not config.summarization.llm:
+        raise ValueError("No llm speciifcation found in summarization configuration")
+    llm: str = config.summarization.llm
+    if llm not in config.llms:
+        llms = list(config.llms.keys())
+        raise ValueError(f"LLM configuration for {llm} not found in the provided configuration file. Configurations present for: {llms}")
+
+    summarizer_config = config.summarization.summarizer_config
+    summarizer_config.llm_client_type = config.llms[llm].llm_client_type
+    summarizer_config.llm_config = config.llms[llm].llm_config
+
     store_cls = get_store_cls(config.storage[storage].store_type, config.storage[storage].store_name)
     storage_config = config.storage[storage].store_config
     storage: SummaryStore = store_cls(storage_config)
     
     summarizer_cls = get_summarizer_class(config.summarization.summarizer_type)
-    summarizer: CodeSummarizerBase = summarizer_cls(config.root_path, config.summarization.summarizer_config)
+    summarizer: CodeSummarizerBase = summarizer_cls(config.root_path, summarizer_config)
     summaries = summarizer.summarize_codebase()
     kv_summaries = summaries_to_key_value_pairs(summaries)
     logger.info(f"Summarization completed. {len(summaries)} modules summarized with {len(kv_summaries)} summaries.")

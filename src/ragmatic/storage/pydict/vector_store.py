@@ -1,3 +1,4 @@
+import typing as t
 import pickle
 import os
 import numpy as np
@@ -16,6 +17,10 @@ class QueryMethod:
 
     @staticmethod
     def execute(query: dict, data: dict[str, np.ndarray]):
+        pass
+
+    @staticmethod
+    def build_query_from_embedding(embedding: t.Sequence[float]) -> t.Any:
         pass
 
 
@@ -54,11 +59,13 @@ class PydictVectorStore(VectorStore):
     _allowed_query_methods = {
         "cosine_similarity": CosineSimilarity
     }
+    _default_query_method = "cosine_similarity"
 
     def __init__(self, config):
         self.config = config
         self.filepath = os.path.expanduser(self.config.get('filepath', self._default_filepath))
         self.__data: dict[str, np.ndarray] = {}
+        self._default_query_method = config.get("default_query_method") or self._default_query_method
 
     @property
     def _data(self):
@@ -88,10 +95,16 @@ class PydictVectorStore(VectorStore):
         with open(self.filepath, "rb") as f:
             self.__data = pickle.load(f)
     
-    def query_vectors(self, query: dict):
+    def query(self, query: dict):
         if 'method' not in query:
-            raise ValueError('Query must contain a "method" key value pair')
+            query["method"] = self._default_query_method
         method = query['method']
         if method not in self._allowed_query_methods:
             raise ValueError(f'Invalid query method: {method}')
         return self._allowed_query_methods[method].execute(query, self._data)
+    
+    def query_byvector(self, vector: t.Sequence[float], n: int = None):
+        return self.query({
+            "vector": vector,
+            "limit": n
+        })

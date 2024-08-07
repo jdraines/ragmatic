@@ -50,10 +50,11 @@ class HuggingFaceTransformerEmbedder(Embedder):
 
     @property
     def model(self):
-        if os.path.exists(self.save_filepath):
-            self._load_model()
-        else:
-            self._download_model()
+        if not self._model:
+            if os.path.exists(self.save_filepath):
+                self._load_model()
+            else:
+                self._download_model()
         assert self._model is not None
         return self._model
 

@@ -2,7 +2,7 @@ from typing import List, Callable
 import os
 from logging import getLogger
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from tqdm.contrib.concurrent import thread_map
 
 from ..llm_ops.bases import LLMClientBase
@@ -12,8 +12,8 @@ logger = getLogger(__name__)
 
 
 class CodeSummarizerConfig(BaseModel):
-    llm_client_type: str
-    llm_config: dict
+    llm_client_type: str = Field(default="")
+    llm_config: dict = Field(defaultfactory=dict)
 
 
 class CodeSummarizerBase:
@@ -25,7 +25,6 @@ class CodeSummarizerBase:
     def __init__(self, root_dir: str, config: dict):
         self.root_dir = root_dir
         self.config = config
-        self._api_keyenvvar = config
         self._llm_client: LLMClientBase = self._initialize_llm_client()
         self._summaries: dict[str, list[str]] = {}
     
@@ -47,8 +46,6 @@ class CodeSummarizerBase:
                     _jobs.append((module_name, code_doc))
         logger.info(f"Summarizing {len(_jobs)} code documents...")
         summary_responses = thread_map(self.summarize_code_document, [code_doc for _, code_doc in _jobs])
-        # with Parallel(n_jobs=-1, backend='threading') as parallel:
-        #     summary_responses = parallel(delayed(self.summarize_code_document)(code_doc) for _, code_doc in _jobs)
         self._summaries = dict(zip([module_name for module_name, _ in _jobs], summary_responses))
         return self._summaries
 

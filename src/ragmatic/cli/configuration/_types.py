@@ -5,7 +5,8 @@ from ...code_summarization.bases import CodeSummarizerConfig
 
 
 class LLMConfig(BaseModel):
-    type: str
+    llm_client_type: str
+    llm_config: dict
     class Config:
         extra = "allow"
 
@@ -39,6 +40,14 @@ class ServiceConfig(BaseModel):
     embedding_config: EmbeddingConfig
 
 
+class RagConfig(BaseModel):
+    rag_agent_type: str
+    llm: str
+    n_nearest: Optional[int] = Field(default=10)
+    prompt: Optional[str] =  Field(default=None)
+    system_prompt: Optional[str] = Field(default=None)
+
+
 class MasterConfig(BaseModel):
     project_name: str
     root_path: str
@@ -47,3 +56,5 @@ class MasterConfig(BaseModel):
     service: Optional[ServiceConfig] = Field(default=None)
     summarization: Optional[SummarizationConfig] = Field(default=None)
     embeddings: Optional[EmbeddingConfig] = Field(default=None)
+    llms: Optional[Dict[str, LLMConfig]] = Field(default=None)
+    rag: Optional[RagConfig] = Field(default=None)

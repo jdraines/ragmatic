@@ -41,7 +41,11 @@ class VectorStore(ABC):
         pass
 
     @abstractmethod
-    def query_vectors(self, query: t.Any):
+    def query(self, query: t.Any):
+        pass
+
+    @abstractmethod
+    def query_byvector(self, vector: t.Sequence[float], n: int = None):
         pass
 
 

@@ -6,12 +6,14 @@ storage:
     store_name: pydict
     store_config:
       dirpath: ./data # a relative path in this case implies you will run the `ragmatic` command within this same directory
-summarization:
-  summarizer_type: python_code
-  summarizer_config:
+llms:
+  openai:
     llm_client_type: openai
     llm_config:
       api_keyenvvar: OPENAI_API_KEY
+summarization:
+  summarizer_type: python_code
+  llm: openai
   storage: localpy
 embeddings:
   embedding_type: hugging_face
@@ -24,3 +26,5 @@ embeddings:
       padding: max_length
     save_model: False
   storage: localpy
+rag:
+  llm: openai
