@@ -11,9 +11,9 @@ class LLMConfig(BaseModel):
         extra = "allow"
 
 
-class EmbeddingConfig(BaseModel):
-    embedding_type: Literal["hugging_face"]
-    embedding_config: dict = Field(default_factory=dict)
+class EmbedderConfig(BaseModel):
+    embedder_type: Literal["hugging_face"]
+    embedder_config: dict = Field(default_factory=dict)
     storage: str
 
 
@@ -34,12 +34,6 @@ class StorageConfig(BaseModel):
     store_config: dict = Field(default_factory=dict)
 
 
-class ServiceConfig(BaseModel):
-    type: str
-    llm_config: LLMConfig
-    embedding_config: EmbeddingConfig
-
-
 class RagConfig(BaseModel):
     rag_agent_type: str
     llm: str
@@ -53,8 +47,8 @@ class MasterConfig(BaseModel):
     root_path: Optional[str] = Field(default=None)
     analysis: Optional[AnalysisConfig] = Field(default=None)
     storage: Optional[Dict[str, StorageConfig]] = Field(default=None)
-    service: Optional[ServiceConfig] = Field(default=None)
+    service: Optional[dict] = Field(default=None)
     summarization: Optional[SummarizationConfig] = Field(default=None)
-    embeddings: Optional[EmbeddingConfig] = Field(default=None)
+    embeddings: Optional[EmbedderConfig] = Field(default=None)
     llms: Optional[Dict[str, LLMConfig]] = Field(default=None)
     rag: Optional[RagConfig] = Field(default=None)

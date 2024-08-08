@@ -33,8 +33,8 @@ def encode_summaries_cmd(config):
     logger.info("Loading summaries")
     summaries = summary_storage.get_all_summaries()
 
-    embedder_cls = get_embedder_cls(config.embeddings.embedding_type)
-    embedder: Embedder = embedder_cls(config.embeddings.embedding_config)
+    embedder_cls = get_embedder_cls(config.embeddings.embedder_type)
+    embedder: Embedder = embedder_cls(config.embeddings.embedder_config)
     
     vector_store_type = config.embeddings.storage
     vector_store_cls = get_store_cls(config.storage[vector_store_type].store_type, config.storage[vector_store_type].store_name)
