@@ -6,7 +6,7 @@ from .bases import CodeSummarizerBase
 
 class PyCodeSummarizer(CodeSummarizerBase):
 
-    summarizer_name = "python_code"
+    name = "python_code"
     file_filters: List = [(lambda x: x.endswith('.py'))]
 
     _system_prompt = (

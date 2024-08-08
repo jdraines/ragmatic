@@ -31,8 +31,9 @@ class PydictSummaryStore(SummaryStore):
 
     def _load_summaries(self):
         if not os.path.exists(self.filepath):
-            self.__data = {}
-            return
+            raise FileNotFoundError(
+                f"Summaries not loaded: File {self.filepath} does not exist."
+            )
         with open(self.filepath, "rb") as f:
             self.__data = pickle.load(f)
 

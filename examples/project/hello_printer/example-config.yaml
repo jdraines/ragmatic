@@ -27,4 +27,5 @@ embeddings:
     save_model: False
   storage: localpy
 rag:
+  rag_agent_type: python_code
   llm: openai

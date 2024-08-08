@@ -13,7 +13,7 @@ logger = getLogger(__name__)
 
 class CodeSummarizerConfig(BaseModel):
     llm_client_type: str = Field(default="")
-    llm_config: dict = Field(defaultfactory=dict)
+    llm_config: dict = Field(default_factory=dict)
 
 
 class CodeSummarizerBase:

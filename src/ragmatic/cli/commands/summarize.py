@@ -1,10 +1,13 @@
 import click
 from logging import getLogger
+import typing as t
 
 from ragmatic.code_summarization.summarizer_factory import get_summarizer_class, CodeSummarizerBase
 from ragmatic.storage.store_factory import get_store_cls
 from ragmatic.storage.bases import SummaryStore
 from ragmatic.cli.configuration.tools import load_config
+from ragmatic.cli.configuration._types import CodeSummarizerConfig
+from ragmatic.utils import KeyFormatter
 
 logger = getLogger(__name__)
 
@@ -36,7 +39,7 @@ def summarize_cmd(config):
     storage_config = config.storage[storage].store_config
     storage: SummaryStore = store_cls(storage_config)
     
-    summarizer_cls = get_summarizer_class(config.summarization.summarizer_type)
+    summarizer_cls: t.Type[CodeSummarizerConfig] = get_summarizer_class(config.summarization.summarizer_type)
     summarizer: CodeSummarizerBase = summarizer_cls(config.root_path, summarizer_config)
     summaries = summarizer.summarize_codebase()
     kv_summaries = summaries_to_key_value_pairs(summaries)
@@ -47,7 +50,7 @@ def summarize_cmd(config):
 
 def summaries_to_key_value_pairs(summaries: dict[str, list[str]]) -> dict[str, str]:
     return {
-        f"{module_name}::{i}": summary
+        KeyFormatter.flatten_summary_key(module_name, i): summary
         for module_name, summary_texts in summaries.items()
         for i, summary in enumerate(summary_texts)
     }

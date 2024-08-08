@@ -6,6 +6,7 @@ from ..llm_ops.bases import LLMClientBase
 from ..llm_ops.client_factory import get_llm_client_class
 from .bases import RagAgentBase
 
+
 class RagAgentConfig(BaseModel):
     llm_client_type: str
     llm_config: dict
@@ -33,9 +34,9 @@ class PyCodeRagAgent(RagAgentBase):
         parts[-1] = parts[-1] + ".py"
         return os.path.join(self.root_dir, *parts)
     
-    def build_user_message(self, query, context_docs):
+    def build_user_message(self, query: str, context_docs: dict[str, str]):
         context_block = ""
-        for relpath, doc in context_docs:
+        for relpath, doc in context_docs.items():
             context_block += f"```python file={relpath}\n{doc}\n```\n\n"
         return (
             self.prompt +

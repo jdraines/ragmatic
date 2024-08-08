@@ -3,7 +3,7 @@ from .py_summarizer import PyCodeSummarizer
 
 
 _summarizers = {
-    PyCodeSummarizer.summarizer_name: PyCodeSummarizer
+    PyCodeSummarizer.name: PyCodeSummarizer
 }
 
 

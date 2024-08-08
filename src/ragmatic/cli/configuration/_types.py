@@ -24,9 +24,9 @@ class AnalysisConfig(BaseModel):
 
 class SummarizationConfig(BaseModel):
     summarizer_type: Literal["python_code"]
-    summarizer_config: CodeSummarizerConfig
     storage: str
-
+    llm: str
+    summarizer_config: Optional[CodeSummarizerConfig] = Field(default_factory=CodeSummarizerConfig)
 
 class StorageConfig(BaseModel):
     store_type: Literal["metadata", "vector", "summary", "omni"]

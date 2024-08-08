@@ -24,6 +24,7 @@ def rag_cmd(config, query):
     storage_type = config.embeddings.storage
     if storage_type not in config.storage:
         raise ValueError(f"No configuration found for storage {storage_type!r}")
+    vector_store_type = config.storage[storage_type].store_type
     vector_store_name = config.storage[storage_type].store_name
     vector_store_config = config.storage[storage_type].store_config
     if not config.llms:
@@ -37,9 +38,10 @@ def rag_cmd(config, query):
         llms = list(config.llms.keys())
         raise ValueError(f"No configuration information provided for LLM {llm!r}. Available llms: {llms}")
     rag_agent_class = get_rag_agent_class(config.rag.rag_agent_type)
-    rag_agent_config: RagAgentBase = RagAgentConfig(dict(
+    rag_agent_config: RagAgentBase = RagAgentConfig(**dict(
         llm_client_type = config.llms[llm].llm_client_type,
         llm_config = config.llms[llm].llm_config,
+        vector_store_type = vector_store_type,
         vector_store_name = vector_store_name,
         vector_store_config = vector_store_config,
         embedder_type = config.embeddings.embedding_type,
@@ -48,5 +50,5 @@ def rag_cmd(config, query):
         prompt = config.rag.prompt,
         system_prompt = config.rag.system_prompt
     ))
-    rag_agent = rag_agent_class(rag_agent_config)
+    rag_agent = rag_agent_class(config.root_path, rag_agent_config)
     print(rag_agent.query(query))
