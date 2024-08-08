@@ -7,14 +7,14 @@ def import_object(import_path):
     return getattr(module, class_name)
 
 
-class KeyFormatter:
+class CollectionKeyFormatter:
 
     delim = "::"
 
     @staticmethod
-    def flatten_summary_key(module_name, index):
-        return f"{module_name}{KeyFormatter.delim}{index}"
+    def flatten_collection_key(collection_name, index):
+        return f"{collection_name}{CollectionKeyFormatter.delim}{index}"
 
     @staticmethod
-    def extract_module_name(key):
-        return key.split(KeyFormatter.delim)[0]
+    def extract_collection_name(key):
+        return key.split(CollectionKeyFormatter.delim)[0]

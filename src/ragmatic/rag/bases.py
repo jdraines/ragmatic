@@ -8,7 +8,7 @@ from ..storage.store_factory import get_store_cls
 from ..storage.bases import VectorStore
 from ..embeddings.bases import Embedder
 from ..embeddings.embedder_factory import get_embedder_cls
-from ragmatic.utils import KeyFormatter
+from ragmatic.utils import CollectionKeyFormatter
 
 
 class RagAgentConfig(BaseModel):
@@ -69,9 +69,9 @@ class RagAgentBase:
     
     def query(self, query: str):
         encoded_query = self._embedder.encode([query])[0]
-        module_name_matches = self._vector_store.query_byvector(encoded_query, self._n)
-        module_names = [KeyFormatter.extract_module_name(match) for match in module_name_matches]
-        context_docs = self.load_docs(module_names)
+        doc_name_matches = self._vector_store.query_byvector(encoded_query, self._n)
+        doc_names = [CollectionKeyFormatter.extract_collection_name(match) for match in doc_name_matches]
+        context_docs = self.load_docs(doc_names)
         message = self.build_user_message(query, context_docs)
         return self._llm_client.send_message(
             message,

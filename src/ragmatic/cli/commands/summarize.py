@@ -7,7 +7,7 @@ from ragmatic.storage.store_factory import get_store_cls
 from ragmatic.storage.bases import SummaryStore
 from ragmatic.cli.configuration.tools import load_config
 from ragmatic.cli.configuration._types import SummarizerConfig
-from ragmatic.utils import KeyFormatter
+from ragmatic.utils import CollectionKeyFormatter
 
 logger = getLogger(__name__)
 
@@ -50,7 +50,7 @@ def summarize_cmd(config):
 
 def summaries_to_key_value_pairs(summaries: dict[str, list[str]]) -> dict[str, str]:
     return {
-        KeyFormatter.flatten_summary_key(module_name, i): summary
+        CollectionKeyFormatter.flatten_collection_key(module_name, i): summary
         for module_name, summary_texts in summaries.items()
         for i, summary in enumerate(summary_texts)
     }
