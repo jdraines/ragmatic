@@ -17,7 +17,7 @@ class PyCodeSummarizer(SummarizerBase):
         "are expected to be concise and informative."
 
     )
-    _code_document_prompt = (
+    _document_prompt = (
         "Please review the following Python code and provide several summaries. "
         "The first summary should be a high-level overview of the code's functionality. "
         "Then, create a summary for each function or class present in the code. "

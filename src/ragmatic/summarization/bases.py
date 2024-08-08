@@ -22,9 +22,9 @@ class SummarizerBase:
     _system_prompt: str = ""
     file_filters: List[Callable[[str], bool]] = [(lambda x: True)]
 
-    def __init__(self, root_dir: str, config: dict):
-        self.root_dir = root_dir
+    def __init__(self, config: dict, root_dir: str = None):
         self.config: SummarizerConfig = config
+        self.root_dir = root_dir
         self._llm_client: LLMClientBase = self._initialize_llm_client()
         self._summaries: dict[str, list[str]] = {}
     

@@ -50,7 +50,7 @@ class RagConfig(BaseModel):
 
 class MasterConfig(BaseModel):
     project_name: str
-    root_path: str
+    root_path: Optional[str] = Field(default=None)
     analysis: Optional[AnalysisConfig] = Field(default=None)
     storage: Optional[Dict[str, StorageConfig]] = Field(default=None)
     service: Optional[ServiceConfig] = Field(default=None)

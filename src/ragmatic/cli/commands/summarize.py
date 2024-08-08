@@ -40,7 +40,7 @@ def summarize_cmd(config):
     storage: SummaryStore = store_cls(storage_config)
     
     summarizer_cls: t.Type[SummarizerConfig] = get_summarizer_class(config.summarization.summarizer_type)
-    summarizer: SummarizerBase = summarizer_cls(config.root_path, summarizer_config)
+    summarizer: SummarizerBase = summarizer_cls(summarizer_config, config.root_path)
     summaries = summarizer.summarize_dir()
     kv_summaries = summaries_to_key_value_pairs(summaries)
     logger.info(f"Summarization completed. {len(summaries)} docs summarized with {len(kv_summaries)} summaries.")
