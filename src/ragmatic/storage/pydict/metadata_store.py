@@ -1,8 +1,11 @@
 import pickle
 import typing as t
 
+from pydantic import BaseModel, Field
+
 from ..bases import MetadataStore, ModuleData
 from .obj_store import PydictObjStore
+
 
 
 class PydictMetadataStore(PydictObjStore, MetadataStore):

@@ -2,7 +2,7 @@ import click
 from logging import getLogger
 
 from ragmatic.storage.store_factory import get_store_cls
-from ragmatic.storage.bases import SummaryStore, VectorStore
+from ragmatic.storage.bases import TextDocumentStore, VectorStore
 from ragmatic.cli.configuration.tools import load_config
 from ragmatic.embeddings.embedder_factory import get_embedder_cls, Embedder
 
@@ -29,7 +29,7 @@ def encode_summaries_cmd(config):
 
     summary_store_cls = get_store_cls(config.storage[summary_storage].store_type, config.storage[summary_storage].store_name)
     summary_storage_config = config.storage[summary_storage].store_config
-    summary_storage: SummaryStore = summary_store_cls(summary_storage_config)
+    summary_storage: TextDocumentStore = summary_store_cls(summary_storage_config)
     logger.info("Loading summaries")
     summaries = summary_storage.get_all_summaries()
 

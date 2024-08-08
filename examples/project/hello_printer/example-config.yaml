@@ -6,6 +6,7 @@ storage:
     store_name: pydict
     store_config:
       dirpath: ./data # a relative path in this case implies you will run the `ragmatic` command within this same directory
+      overwrite: True
 llms:
   openai:
     llm_client_type: openai

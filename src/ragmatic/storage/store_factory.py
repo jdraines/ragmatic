@@ -11,8 +11,8 @@ _vector_stores = {
     "pydict": "ragmatic.storage.pydict.vector_store.PydictVectorStore"
 }
 
-_summary_stores =  {
-    "pydict": "ragmatic.storage.pydict.summary_store.PydictSummaryStore"
+_text_doc_stores =  {
+    "pydict": "ragmatic.storage.pydict.text_doc_store.PydictTextDocumentStore"
 }
 
 _omni_stores = {

@@ -4,7 +4,7 @@ import typing as t
 
 from ragmatic.summarization.summarizer_factory import get_summarizer_class, SummarizerBase
 from ragmatic.storage.store_factory import get_store_cls
-from ragmatic.storage.bases import SummaryStore
+from ragmatic.storage.bases import TextDocumentStore
 from ragmatic.cli.configuration.tools import load_config
 from ragmatic.cli.configuration._types import SummarizerConfig
 from ragmatic.utils import CollectionKeyFormatter
@@ -37,14 +37,14 @@ def summarize_cmd(config):
 
     store_cls = get_store_cls(config.storage[storage].store_type, config.storage[storage].store_name)
     storage_config = config.storage[storage].store_config
-    storage: SummaryStore = store_cls(storage_config)
+    storage: TextDocumentStore = store_cls(storage_config)
     
     summarizer_cls: t.Type[SummarizerConfig] = get_summarizer_class(config.summarization.summarizer_type)
     summarizer: SummarizerBase = summarizer_cls(summarizer_config, config.root_path)
     summaries = summarizer.summarize_dir()
     kv_summaries = summaries_to_key_value_pairs(summaries)
     logger.info(f"Summarization completed. {len(summaries)} docs summarized with {len(kv_summaries)} summaries.")
-    storage.store_summaries(kv_summaries)
+    storage.store_text_docs(kv_summaries)
     logger.info(f"Summaries stored in {storage.name} storage.")
 
 

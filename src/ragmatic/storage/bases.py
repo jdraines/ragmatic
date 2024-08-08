@@ -49,12 +49,12 @@ class VectorStore(ABC):
         pass
 
 
-class SummaryStore(ABC):
+class TextDocumentStore(ABC):
 
     name: str = None
 
     @abstractmethod
-    def store_summaries(self, summaries: dict[str, str]):
+    def store_text_docs(self, text_docs: dict[str, str]):
         pass
 
     @abstractmethod
@@ -66,11 +66,11 @@ class SummaryStore(ABC):
         pass
 
 
-class OmniStore(MetadataStore, VectorStore, SummaryStore):
+class OmniStore(MetadataStore, VectorStore, TextDocumentStore):
     
     _vector_store: VectorStore = None
     _metadata_store: MetadataStore = None
-    _summary_store: SummaryStore = None
+    _text_doc_store: TextDocumentStore = None
 
 
     def __init__(self, config):
@@ -103,20 +103,20 @@ class OmniStore(MetadataStore, VectorStore, SummaryStore):
     def query_byvector(self, vector: t.Sequence[float], n: int = None):
         return self._vector_store.query_byvector(vector, n)
     
-    def store_summaries(self, summaries: dict[str, str]):
-        return self._summary_store.store_summaries(summaries)
+    def store_text_docs(self, summaries: dict[str, str]):
+        return self._text_doc_store.store_text_docs(summaries)
     
     def get_summary(self, key: str):
-        return self._summary_store.get_summary(key)
+        return self._text_doc_store.get_summary(key)
     
     def get_all_summaries(self):
-        return self._summary_store.get_all_summaries()
+        return self._text_doc_store.get_all_summaries()
 
     def __getattr__(self, name):
         if hasattr(self._metadata_store, name):
             return getattr(self._metadata_store, name)
         if hasattr(self._vector_store, name):
             return getattr(self._vector_store, name)
-        if hasattr(self._summary_store, name):
-            return getattr(self._summary_store, name)
+        if hasattr(self._text_doc_store, name):
+            return getattr(self._text_doc_store, name)
         raise AttributeError(f"Attribute {name} not found in {type(self).__name__}.")

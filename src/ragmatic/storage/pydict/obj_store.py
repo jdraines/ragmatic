@@ -5,6 +5,8 @@ import typing as t
 import re
 import os
 
+from pydantic import BaseModel, Field
+
 from ...code_analysis.metadata_units.bases import ModuleData
 
 
@@ -46,6 +48,13 @@ class JoblibParallelMap(MapOp):
 
     def __exit__(self, exc_type, exc_value, traceback):
         self.parallel = None
+
+
+class PydictObjStoreConfig(BaseModel):
+    filepath: t.Optional[str] = Field(default="data.pkl")
+    always_parallel: t.Optional[bool] = False
+    allowed_query_keys: t.Optional[list[str]] = Field(default_factory=list)
+    overwrite: t.Optional[bool] = Field(default=True)
 
 
 class PydictObjStore:
@@ -111,10 +120,12 @@ class PydictObjStore:
     _default_filepath = "data.pkl"
 
     def __init__(self, config):
+        config = PydictObjStoreConfig(**config)
         self.config = config
-        self.always_parallel = config.get("always_parallel", False)
-        self.filepath = os.path.expanduser(config.get("filepath", self._default_filepath))
-        self._allowed_query_keys = config.get("allowed_query_keys", self._allowed_query_keys)
+        self.overwrite = config.overwrite
+        self.always_parallel = config.always_parallel
+        self.filepath = os.path.expanduser(config.filepath)
+        self._allowed_query_keys = config.allowed_query_keys or self._allowed_query_keys
         self.__data = None
 
     @property
@@ -123,18 +134,33 @@ class PydictObjStore:
             self._load_module_data()
         return self.__data
     
-    
+    def store_data(self, data: dict[str, t.Any]):
+        try:
+            self._data.update(data)
+        except FileNotFoundError as e:
+            if self.overwrite:
+                self.__data = data
+            else:
+                raise e
+        self._write_data(self._data, self.filepath)
+
+    def _write_data(self, data, filepath):
+        with open(filepath, "wb") as f:
+            pickle.dump(data, f)
+
+
     def get_mapper(self):
         if len(self._data) > PARALLELIZATION_THRESHOLD or self.always_parallel:
             return JoblibParallelMap({"n_jobs": -1})
         return NoMap({})
 
     def _load_module_data(self):
-        try:
-            with open(self.filepath, "rb") as f:
-                self.__data = pickle.load(f)
-        except FileNotFoundError:
-            self.__data = {}
+        if not os.path.exists(self.filepath):
+            raise FileNotFoundError(
+                f"Unable to load data: File {self.filepath} does not exist."
+            )
+        with open(self.filepath, "rb") as f:
+            self.__data = pickle.load(f)
 
     def query_data(self, query: list[tuple[str, str, t.Any]]):
         query_ops = []

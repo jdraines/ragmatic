@@ -6,6 +6,8 @@ import re
 from collections import OrderedDict
 from logging import getLogger
 
+from pydantic import BaseModel, Field
+
 from ..bases import VectorStore
 
 
@@ -88,21 +90,26 @@ class CosineSimilarity(QueryMethod):
         return vector, matrix
 
 
+class PydictVectorStoreConfig(BaseModel):
+    filepath: t.Optional[str] = Field(default='vectors.pkl')
+    default_query_method: t.Optional[str] = Field(default="cosine_similarity")
+    overwrite: t.Optional[bool] = Field(default=True)
+
 
 class PydictVectorStore(VectorStore):
     
     name = 'pydict'
-    _default_filepath = 'vectors.pkl'
     _allowed_query_methods = {
         "cosine_similarity": CosineSimilarity
     }
-    _default_query_method = "cosine_similarity"
 
     def __init__(self, config):
+        config = PydictVectorStoreConfig(**config)
         self.config = config
-        self.filepath = os.path.expanduser(self.config.get('filepath', self._default_filepath))
+        self.overwrite = config.overwrite
+        self.filepath = os.path.expanduser(self.config.filepath)
         self.__data: dict[str, np.ndarray] = {}
-        self._default_query_method = config.get("default_query_method") or self._default_query_method
+        self._default_query_method = config.default_query_method
 
     @property
     def _data(self):
@@ -111,7 +118,13 @@ class PydictVectorStore(VectorStore):
         return self.__data
 
     def store_vectors(self, vectors: dict[str, np.ndarray]):
-        self._data.update(vectors)
+        try:
+            self._data.update(vectors)
+        except FileNotFoundError as e:
+            if self.overwrite:
+                self.__data = vectors
+            else:
+                raise e
         logger.info(f"Storing vectors to {self.filepath}")
         self._write_vectors(self._data)
 

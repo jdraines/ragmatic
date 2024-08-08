@@ -2,7 +2,7 @@ import click
 from logging import getLogger
 
 from ragmatic.storage.store_factory import get_store_cls
-from ragmatic.storage.bases import SummaryStore, VectorStore
+from ragmatic.storage.bases import TextDocumentStore, VectorStore
 from ragmatic.cli.configuration.tools import load_config
 from ragmatic.embeddings.embedder_factory import get_embedder_cls, Embedder
 from ragmatic.rag.rag_agent_factory import get_rag_agent_class
