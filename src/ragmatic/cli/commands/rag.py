@@ -48,7 +48,6 @@ def _validate_config(config: MasterConfig):
     storage_type = config.embeddings.storage
     if storage_type not in config.storage:
         raise ValueError(f"No configuration found for storage {storage_type!r}")
-
     if not config.llms:
         raise ValueError(f"No 'llms' list specified in the configuration file.")
     if not config.rag:

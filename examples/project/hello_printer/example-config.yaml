@@ -1,32 +1,48 @@
 project_name: hello_printer
 root_path: ./src  # a relative path in this case implies you will run the `ragmatic` command within this same directory
-storage:
-  localpy:
-    store_type: omni
-    store_name: pydict
-    store_config:
-      dirpath: ./data # a relative path in this case implies you will run the `ragmatic` command within this same directory
-      overwrite: True
-llms:
-  openai:
-    llm_client_type: openai
-    llm_config:
-      api_keyenvvar: OPENAI_API_KEY
-summarization:
-  summarizer_type: python_code
-  llm: openai
-  storage: localpy
-embeddings:
-  embedding_type: hugging_face
-  embedding_config:
-    model_name: "dunzhang/stella_en_1.5B_v5"
-    tokenizer_config:
-      return_tensors: pt
-      max_length: 1024
-      truncation: True
-      padding: max_length
-    save_model: False
-  storage: localpy
+components:
+  storage:
+    localpy:
+      data_type: omni
+      type: pydict
+      config:
+        dirpath: ./data  # a relative path in this case implies you will run the `ragmatic` command within this same directory
+        overwrite: True
+  llms:
+    openai:
+      type: openai
+      config:
+        api_keyenvvar: OPENAI_API_KEY
+  summarizers:
+    pycode:
+      type: python_code
+      config:
+        llm: openai
+  encoders:
+    plaintext:
+      type: hugging_face
+      config:
+        model_name: "dunzhang/stella_en_1.5B_v5"
+        tokenizer_config:
+          return_tensors: pt
+          max_length: 1024
+          truncation: True
+          padding: max_length
+        save_model: False
+pipelines:
+  ingest-python-codebase:
+    - action: summarize
+      config:
+        root_path: ./src
+        summarizer: pycode
+        storage: localpy
+    - action: encode
+      config:
+        encoder: plaintext
+        source: 
+          type: storage
+          config: localpy
+        storage: localpy
 rag:
   rag_agent_type: python_code
   llm: openai

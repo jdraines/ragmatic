@@ -20,8 +20,8 @@ _omni_stores = {
 }
 
 
-def get_store_cls(store_type:str, store_name: str) -> MetadataStore:
-    store_dict = globals()[f"_{store_type}_stores"]
-    if store_name not in store_dict:
-        raise ValueError(f"Store {store_name} not found")
-    return import_object(store_dict[store_name])
+def get_store_cls(data_type:str, store_type: str) -> MetadataStore:
+    store_dict = globals()[f"_{data_type}_stores"]
+    if store_type not in store_dict:
+        raise ValueError(f"Store {store_type} not found")
+    return import_object(store_dict[store_type])

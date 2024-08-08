@@ -28,7 +28,7 @@ class PydictTextDocumentStore(TextDocumentStore):
     @property
     def _data(self):
         if not self.__data:
-            self._load_summaries()
+            self._load_documents()
         return self.__data
 
     def store_text_docs(self, text_docs: dict[str, str]):
@@ -39,13 +39,13 @@ class PydictTextDocumentStore(TextDocumentStore):
                 self.__data = text_docs
             else:
                 raise e
-        self._write_summaries(self._data)
+        self._write_documents(self._data)
 
-    def _write_summaries(self, data):
+    def _write_documents(self, data):
         with open(self.filepath, "wb") as f:
             pickle.dump(data, f)
 
-    def _load_summaries(self):
+    def _load_documents(self):
         if not os.path.exists(self.filepath):
             raise FileNotFoundError(
                 f"Summaries not loaded: File {self.filepath} does not exist."
@@ -53,8 +53,8 @@ class PydictTextDocumentStore(TextDocumentStore):
         with open(self.filepath, "rb") as f:
             self.__data = pickle.load(f)
 
-    def get_summary(self, key: str):
+    def get_document(self, key: str):
         return self._data.get(key)
 
-    def get_all_summaries(self):
+    def get_all_documents(self):
         return self._data

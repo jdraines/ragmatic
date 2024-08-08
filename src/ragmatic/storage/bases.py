@@ -58,11 +58,11 @@ class TextDocumentStore(ABC):
         pass
 
     @abstractmethod
-    def get_summary(self, key: str):
+    def get_document(self, key: str):
         pass
 
     @abstractmethod
-    def get_all_summaries(self):
+    def get_all_documents(self):
         pass
 
 
@@ -103,14 +103,14 @@ class OmniStore(MetadataStore, VectorStore, TextDocumentStore):
     def query_byvector(self, vector: t.Sequence[float], n: int = None):
         return self._vector_store.query_byvector(vector, n)
     
-    def store_text_docs(self, summaries: dict[str, str]):
-        return self._text_doc_store.store_text_docs(summaries)
+    def store_text_docs(self, documents: dict[str, str]):
+        return self._text_doc_store.store_text_docs(documents)
     
-    def get_summary(self, key: str):
-        return self._text_doc_store.get_summary(key)
+    def get_document(self, key: str):
+        return self._text_doc_store.get_document(key)
     
-    def get_all_summaries(self):
-        return self._text_doc_store.get_all_summaries()
+    def get_all_documents(self):
+        return self._text_doc_store.get_all_documents()
 
     def __getattr__(self, name):
         if hasattr(self._metadata_store, name):
