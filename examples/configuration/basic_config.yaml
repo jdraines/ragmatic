@@ -29,3 +29,5 @@ embeddings:
 rag:
   rag_agent_type: python_code
   llm: my_llm_number_1
+  system_prompt: ""  # python_code rag agent has its own system prompt
+  prompt: "" # python_code rag agent has its own prompt
