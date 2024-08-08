@@ -1,10 +1,11 @@
 from typing import List
 import re
+import os
 
-from .bases import CodeSummarizerBase
+from .bases import SummarizerBase
 
 
-class PyCodeSummarizer(CodeSummarizerBase):
+class PyCodeSummarizer(SummarizerBase):
 
     name = "python_code"
     file_filters: List = [(lambda x: x.endswith('.py'))]
@@ -24,8 +25,8 @@ class PyCodeSummarizer(CodeSummarizerBase):
         "Identify each summary by a set of <summary></summary> tags."
     )
 
-    def summarize_code_document(self, code_doc: str) -> list[str]:
-        message = self._build_message(code_doc)
+    def summarize_document(self, doc: str) -> list[str]:
+        message = self._build_message(doc)
         response = self._llm_client.send_message(
             message,
             self._system_prompt,
@@ -33,3 +34,10 @@ class PyCodeSummarizer(CodeSummarizerBase):
         )
         return re.findall(r"<summary>(.*?)</summary>", response, re.DOTALL)
     
+    def _file_path_to_doc_name(self, file_path: str) -> str:
+        return self._file_path_to_module_name(file_path)
+
+    def _file_path_to_module_name(self, file_path: str) -> str:
+        relative_path = os.path.relpath(file_path, self.root_dir)
+        module_name = os.path.splitext(relative_path)[0].replace(os.path.sep, '.')
+        return module_name

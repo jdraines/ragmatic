@@ -1,7 +1,7 @@
 from typing import Literal, Optional, Dict
 from pydantic import BaseModel, Field
 
-from ...code_summarization.bases import CodeSummarizerConfig
+from ...summarization.bases import SummarizerConfig
 
 
 class LLMConfig(BaseModel):
@@ -26,7 +26,7 @@ class SummarizationConfig(BaseModel):
     summarizer_type: Literal["python_code"]
     storage: str
     llm: str
-    summarizer_config: Optional[CodeSummarizerConfig] = Field(default_factory=CodeSummarizerConfig)
+    summarizer_config: Optional[SummarizerConfig] = Field(default_factory=SummarizerConfig)
 
 class StorageConfig(BaseModel):
     store_type: Literal["metadata", "vector", "summary", "omni"]

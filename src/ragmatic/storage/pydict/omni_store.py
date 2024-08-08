@@ -9,6 +9,7 @@ from .summary_store import PydictSummaryStore
 
 class PydictOmniStore(OmniStore):
     
+    name = "pydict"
     _default_dirpath = 'data'
 
     def __init__(self, config):

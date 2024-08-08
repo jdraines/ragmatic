@@ -2,11 +2,11 @@ import click
 from logging import getLogger
 import typing as t
 
-from ragmatic.code_summarization.summarizer_factory import get_summarizer_class, CodeSummarizerBase
+from ragmatic.summarization.summarizer_factory import get_summarizer_class, SummarizerBase
 from ragmatic.storage.store_factory import get_store_cls
 from ragmatic.storage.bases import SummaryStore
 from ragmatic.cli.configuration.tools import load_config
-from ragmatic.cli.configuration._types import CodeSummarizerConfig
+from ragmatic.cli.configuration._types import SummarizerConfig
 from ragmatic.utils import KeyFormatter
 
 logger = getLogger(__name__)
@@ -39,11 +39,11 @@ def summarize_cmd(config):
     storage_config = config.storage[storage].store_config
     storage: SummaryStore = store_cls(storage_config)
     
-    summarizer_cls: t.Type[CodeSummarizerConfig] = get_summarizer_class(config.summarization.summarizer_type)
-    summarizer: CodeSummarizerBase = summarizer_cls(config.root_path, summarizer_config)
-    summaries = summarizer.summarize_codebase()
+    summarizer_cls: t.Type[SummarizerConfig] = get_summarizer_class(config.summarization.summarizer_type)
+    summarizer: SummarizerBase = summarizer_cls(config.root_path, summarizer_config)
+    summaries = summarizer.summarize_dir()
     kv_summaries = summaries_to_key_value_pairs(summaries)
-    logger.info(f"Summarization completed. {len(summaries)} modules summarized with {len(kv_summaries)} summaries.")
+    logger.info(f"Summarization completed. {len(summaries)} docs summarized with {len(kv_summaries)} summaries.")
     storage.store_summaries(kv_summaries)
     logger.info(f"Summaries stored in {storage.name} storage.")
 
