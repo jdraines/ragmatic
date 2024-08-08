@@ -1,5 +1,6 @@
 from ..utils import import_object
 from .bases import MetadataStore
+from ragmatic.utils import import_object
 
 
 _metadata_stores = {
@@ -23,5 +24,8 @@ _omni_stores = {
 def get_store_cls(data_type:str, store_type: str) -> MetadataStore:
     store_dict = globals()[f"_{data_type}_stores"]
     if store_type not in store_dict:
-        raise ValueError(f"Store {store_type} not found")
+        try:
+            return import_object(store_type)
+        except Exception:
+            raise ValueError(f"Store {store_type} not found")
     return import_object(store_dict[store_type])

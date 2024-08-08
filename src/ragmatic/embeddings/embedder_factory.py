@@ -10,5 +10,8 @@ _embedders = {
 
 def get_embedder_cls(embedder_name) -> Type[Embedder]:
     if embedder_name not in _embedders:
-        raise ValueError(f"Embedder {embedder_name} not supported")
+        try:
+            return import_object(embedder_name)
+        except Exception:
+            raise ValueError(f"Embedder {embedder_name} not supported")
     return import_object(_embedders[embedder_name])
