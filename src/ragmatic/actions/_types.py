@@ -3,6 +3,8 @@ from pydantic import BaseModel, Field
 
 from ..summarization.bases import SummarizerConfig
 
+from ..rag.bases import RagAgentConfig
+
 
 class LLMComponentConfig(BaseModel):
     type: str
@@ -37,3 +39,8 @@ class StorageComponentConfig(BaseModel):
     data_type: t.Literal["metadata", "vector", "summary", "omni"]
     type: t.Literal["elasticsearch", "pydict"]
     config: dict = Field(default_factory=dict)
+
+
+class RagAgentComponentConfig(BaseModel):
+    type: str
+    config: RagAgentConfig

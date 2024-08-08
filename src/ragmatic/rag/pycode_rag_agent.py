@@ -11,6 +11,7 @@ class RagAgentConfig(BaseModel):
 
 class PyCodeRagAgent(RagAgentBase):
 
+    name = "python_code"
     system_prompt = (
         "You are an assistant with expertise in programming, particularly with "
         "python applications. You pay careful attention to detail "

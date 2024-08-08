@@ -8,41 +8,18 @@ from ragmatic.storage.bases import TextDocumentStore, VectorStore
 from ragmatic.embeddings.embedder_factory import get_embedder_cls, Embedder
 from ._types import EncoderComponentConfig, StorageComponentConfig
 from .bases import Action, ActionConfig
+from ..document_sources.source_factory import get_document_source_cls, DocumentSourceBase
+from ragmatic.common_types import TypeAndConfig
+
 
 logger = getLogger(__name__)
 
 
 class EncodeActionConfig(ActionConfig):
-
-    class EncodeActionSourceSubconfig(BaseModel):
-        type: t.Union[str, t.Literal["storage"]]
-        config: t.Union[str, StorageComponentConfig]
-
     encoder: t.Union[str, EncoderComponentConfig]
-    source: EncodeActionSourceSubconfig
+    document_source: TypeAndConfig
     storage: t.Union[str, StorageComponentConfig]
     
-
-class SourceWrapper:
-
-    def __init__(self,
-                 source: t.Any,
-                 source_call_method: str,
-                 source_call_args: t.List[t.Any] = None
-                 ):
-        self.source = source
-        self.source_call_method = source_call_method
-        self.source_call_args = source_call_args or []
-
-    def __call__(self) -> dict[str, str]:
-        return getattr(self.source, self.source_call_method)(*self.source_call_args)
-
-    def __repr__(self) -> str:
-        return f"{self.__class__.__name__}({self.source}.{self.source_call_method})"
-
-
-Source = t.Callable[[], dict[str, str]]
-
 
 class EncodeAction(Action):
 
@@ -53,7 +30,7 @@ class EncodeAction(Action):
         super().__init__(config)
         self.config = config
         self._embedder: Embedder = self._initialize_encoder()
-        self._source: Source = self._initialize_source()
+        self._source: DocumentSourceBase = self._initialize_source()
         self._vector_store: VectorStore = self._initialize_storage()
 
     def _initialize_encoder(self):
@@ -68,20 +45,14 @@ class EncodeAction(Action):
         store_config = config or self.config.storage.config
         return store_cls(store_config)
     
-    def _initialize_source(self) -> t.Union[t.Any, TextDocumentStore]:
-        if self.config.source.type == "storage":
-            data_type = self.config.source.config.data_type
-            type_ = self.config.source.config.type
-            config = self.config.source.config.config
-            return SourceWrapper(
-                self._initialize_storage(data_type, type_, config),
-                "get_all_documents"
-            )
-        return None
+    def _initialize_source(self) -> DocumentSourceBase:
+        source_cls = get_document_source_cls(self.config.document_source.type)
+        source_config = self.config.document_source.config
+        return source_cls(source_config)
     
     def execute(self):
         logger.info("Loading source data")
-        source_data = self._source()
+        source_data = self._source.get_documents()
         logger.info(f"Encoding {len(source_data)} documents...")
         _encoded_data = self._embedder.encode([
             doc for _, doc in source_data.items()

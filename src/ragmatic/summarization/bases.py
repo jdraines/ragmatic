@@ -7,13 +7,22 @@ from tqdm.contrib.concurrent import thread_map
 
 from ..llm_ops.bases import LLMClientBase
 from ..llm_ops.client_factory import get_llm_client_class
+from ..document_sources.source_factory import get_document_source_cls
+from ..document_sources.bases import DocumentSourceBase
+from ragmatic.common_types import TypeAndConfig
+
 
 logger = getLogger(__name__)
 
 
-class SummarizerConfig(BaseModel):
+class LLMTypeAndConfig(TypeAndConfig):
     llm_client_type: str = Field(default="")
     llm_config: dict = Field(default_factory=dict)
+
+
+class SummarizerConfig(BaseModel):
+    llm: LLMTypeAndConfig
+    document_source: TypeAndConfig
 
 
 class SummarizerBase:
@@ -22,31 +31,22 @@ class SummarizerBase:
     _system_prompt: str = ""
     file_filters: List[Callable[[str], bool]] = [(lambda x: True)]
 
-    def __init__(self, config: dict, root_dir: str = None):
+    def __init__(self, config: dict):
         self.config: SummarizerConfig = config
-        self.root_dir = root_dir
         self._llm_client: LLMClientBase = self._initialize_llm_client()
         self._summaries: dict[str, list[str]] = {}
     
     def _initialize_llm_client(self) -> LLMClientBase:
-        client_class = get_llm_client_class(self.config.llm_client_type)
-        llm_config = self.config.llm_config
+        client_class = get_llm_client_class(self.config.llm.type)
+        llm_config = self.config.llm.config
         return client_class(llm_config)
-    
-    def summarize_dir(self) -> dict[str, list[str]]:
-        walked = list(os.walk(self.root_dir))
-        _jobs = []
-        for root, _, files in walked:
-            for file in files:
-                if all([f(file) for f in self.file_filters]):
-                    file_path = os.path.join(root, file)
-                    module_name = self._file_path_to_doc_name(file_path)
-                    with open(file_path, 'r') as file:
-                        doc = file.read()
-                    _jobs.append((module_name, doc))
+
+    def summarize(self, documents: dict[str, str] = None) -> dict[str, list[str]]:
+        docs = documents
+        _jobs = [(self._file_path_to_doc_name(path), text) for path, text in docs.items()]
         logger.info(f"Summarizing {len(_jobs)} code documents...")
         summary_responses = thread_map(self.summarize_document, [doc for _, doc in _jobs])
-        self._summaries = dict(zip([module_name for module_name, _ in _jobs], summary_responses))
+        self._summaries = dict(zip([doc_name for doc_name, _ in _jobs], summary_responses))
         return self._summaries
 
     def summarize_document(self, doc: str) -> list[str]:

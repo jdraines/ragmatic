@@ -1,3 +1,4 @@
+import typing as t
 from typing import List, Callable, Optional
 import os
 
@@ -9,60 +10,50 @@ from ..storage.bases import VectorStore
 from ..embeddings.bases import Embedder
 from ..embeddings.embedder_factory import get_embedder_cls
 from ragmatic.utils import CollectionKeyFormatter
-
+from ragmatic.common_types import TypeAndConfig, StoreConfig
+from ..document_sources.bases import DocumentSourceBase
 
 class RagAgentConfig(BaseModel):
-    llm_client_type: str
-    llm_config: dict
-    vector_store_type: str
-    vector_store_name: str
-    vector_store_config: dict
-    embedder_type: str
-    embedder_config: dict
+    llm: t.Union[TypeAndConfig, str]
+    storage: t.Union[StoreConfig, str]
+    encoder: t.Union[TypeAndConfig, str]
     n_nearest: Optional[int] = 10
     prompt: Optional[str] = Field(default="")
     system_prompt: Optional[str] = Field(default="")
-
+    class Config:
+        extra = "allow"
 
 class RagAgentBase:
 
+    name: str = ""
     file_filters: List[Callable[[str], bool]] = [(lambda x: True)]
     prompt: str = ""
     system_prompt: str = ""
     q_context_delimiter: str = "\n=========\n"
 
-    def __init__(self, root_dir: str, config: RagAgentConfig):
-        self.root_dir = root_dir
+    def __init__(self, config: RagAgentConfig, document_source: DocumentSourceBase):
         self.config = config
         self.prompt = config.prompt or self.prompt
+        self._document_source = document_source
         self._n = config.n_nearest
         self._llm_client: LLMClientBase = self._initialize_llm_client()
         self._vector_store: VectorStore = self._initialize_vector_store()
         self._embedder: Embedder = self._initialize_embedder()
 
     def _initialize_llm_client(self) -> LLMClientBase:
-        client_class = get_llm_client_class(self.config.llm_client_type)
-        llm_config = self.config.llm_config
+        client_class = get_llm_client_class(self.config.llm.type)
+        llm_config = self.config.llm.config
         return client_class(llm_config)
     
     def _initialize_vector_store(self) -> VectorStore:
-        store_class = get_store_cls(self.config.vector_store_type, self.config.vector_store_name)
-        store_config = self.config.vector_store_config
+        store_class = get_store_cls(self.config.storage.data_type, self.config.storage.type)
+        store_config = self.config.storage.config
         return store_class(store_config)
 
     def _initialize_embedder(self) -> Embedder:
-        embedder_class = get_embedder_cls(self.config.embedder_type)
-        embedder_config = self.config.embedder_config
+        embedder_class = get_embedder_cls(self.config.encoder.type)
+        embedder_config = self.config.encoder.config
         return embedder_class(embedder_config)
-
-    def load_docs(self, module_names: list[str]) -> dict[str, str]:
-        docs = {}
-        for module_name in module_names:
-            filepath = self.module_name_to_file_path(module_name)
-            relpath = os.path.relpath(filepath, self.root_dir)
-            with open(filepath, "rt") as f:
-                docs[relpath] = f.read()
-        return docs
 
     def module_name_to_file_path(self, module_name: str):
         raise NotImplementedError
@@ -71,7 +62,7 @@ class RagAgentBase:
         encoded_query = self._embedder.encode([query])[0]
         doc_name_matches = self._vector_store.query_byvector(encoded_query, self._n)
         doc_names = [CollectionKeyFormatter.extract_collection_name(match) for match in doc_name_matches]
-        context_docs = self.load_docs(doc_names)
+        context_docs = self._document_source.get_documents(doc_names)
         message = self.build_user_message(query, context_docs)
         return self._llm_client.send_message(
             message,
