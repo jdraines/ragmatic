@@ -2,21 +2,23 @@ project_name: my_project
 root_path: /path/to/my_project/src
 storage:
   localpy:
-  - store_type: omni
+    store_type: omni
     store_name: pydict
     store_config:
       dirpath: /tmp/ragmatic
-summarization:
-  summarizer_type: python_code
-  summarizer_config:
-    llm_client: openai
+llms:
+  my_llm_number_1:
+    llm_client_type: openai
     llm_config:
       api_keyenvvar: OPENAI_API_KEY
+summarization:
+  summarizer_type: python_code
+  llm: my_llm_number_1
   storage: localpy
 embeddings:
   embedding_type: hugging_face
   embedding_config:
-    model_name: stella_en_1.5B_v5
+    model_name: "dunzhang/stella_en_1.5B_v5"
     tokenizer_config:
       return_tensors: pt
       max_length: 1024
@@ -24,3 +26,6 @@ embeddings:
       padding: max_length
     save_model: False
   storage: localpy
+rag:
+  rag_agent_type: python_code
+  llm: my_llm_number_1
