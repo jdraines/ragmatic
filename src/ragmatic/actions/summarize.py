@@ -16,7 +16,6 @@ logger = getLogger(__name__)
 
 
 class SummarizeActionConfig(ActionConfig):
-    root_path: t.Optional[str] = Field(default=None)
     summarizer: SummarizerComponentConfig
     storage: StorageComponentConfig
     document_source: TypeAndConfig
@@ -37,7 +36,7 @@ class SummarizeAction(Action):
     def _initialize_summarizer(self):
         summarizer_cls = get_summarizer_class(self.config.summarizer.type)
         summarizer_config = self.config.summarizer.config
-        return summarizer_cls(summarizer_config, self.config.root_path)
+        return summarizer_cls(summarizer_config)
 
     def _initialize_document_source(self):
         source_cls = get_document_source_cls(self.config.document_source.type)
@@ -63,7 +62,7 @@ class SummarizeAction(Action):
 
     def summaries_to_key_value_pairs(self, summaries: dict[str, list[str]]) -> dict[str, str]:
         return {
-            CollectionKeyFormatter.flatten_collection_key(module_name, i): summary
-            for module_name, summary_texts in summaries.items()
+            CollectionKeyFormatter.flatten_collection_key(doc_name, i): summary
+            for doc_name, summary_texts in summaries.items()
             for i, summary in enumerate(summary_texts)
         }

@@ -41,33 +41,28 @@ class ActionConfigFactory:
 
     def dereference_storage(self, storage: t.Union[str, StoreConfig]) -> StoreConfig:
         if isinstance(storage, str):
-            storage_config = self.master_config.components.storage[storage]
-            return StoreConfig(**storage_config)
+            return self.master_config.components.storage[storage]
         return storage
 
     def dereference_llm(self, llm: t.Union[str, TypeAndConfig]) -> TypeAndConfig:
-        if isinstance(llm.config, str):
-            llm_config = self.master_config.components.llms[llm]
-            return TypeAndConfig(**llm_config)
+        if isinstance(llm, str):
+            return self.master_config.components.llms[llm]
         return llm
 
     def dereference_encoder(self, encoder: t.Union[str, TypeAndConfig]) -> TypeAndConfig:
         if isinstance(encoder, str):
-            encoder_config = self.master_config.components.encoders[encoder]
-            return TypeAndConfig(**encoder_config)
+            return self.master_config.components.encoders[encoder]
         return encoder
 
     def dereference_summarizer(self, summarizer: t.Union[str, TypeAndConfig]) -> TypeAndConfig:
         if isinstance(summarizer, str):
-            summarizer_config = self.master_config.components.summarizers[summarizer]
-            return TypeAndConfig(**summarizer_config)
+            return self.master_config.components.summarizers[summarizer]
         return summarizer
 
 
 class EncodeActionConfigFactory(ActionConfigFactory):
 
     def dereference_action_config(self, action_config: EncodeActionConfig) -> EncodeActionConfig:
-        action_config.document_source = TypeAndConfig(**action_config.document_source)
         action_config.encoder = self.dereference_encoder(action_config.encoder)
         action_config.document_source = self.dereference_document_source(action_config.document_source)
         action_config.storage = self.dereference_storage(action_config.storage)        
@@ -82,14 +77,15 @@ class SummarizeActionConfigFactory(ActionConfigFactory):
         action_config.summarizer.config.llm =\
             self.dereference_llm(action_config.summarizer.config.llm) 
         action_config.document_source = self.dereference_document_source(action_config.document_source)
+        return action_config
 
 
 class RagActionConfigFactory(ActionConfigFactory):
     
     def dereference_action_config(self, action_config: RagActionConfig) -> RagActionConfig:
-        action_config.llm = self.dereference_llm(action_config.llm)
-        action_config.storage = self.dereference_storage(action_config.storage)
-        action_config.encoder = self.dereference_encoder(action_config.encoder)
+        action_config.rag_agent.config.llm = self.dereference_llm(action_config.rag_agent.config.llm)
+        action_config.rag_agent.config.storage = self.dereference_storage(action_config.rag_agent.config.storage)
+        action_config.rag_agent.config.encoder = self.dereference_encoder(action_config.rag_agent.config.encoder)
         action_config.document_source = self.dereference_document_source(action_config.document_source)
         return action_config
 

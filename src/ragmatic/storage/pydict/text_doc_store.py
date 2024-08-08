@@ -32,13 +32,10 @@ class PydictTextDocumentStore(TextDocumentStore):
         return self.__data
 
     def store_text_docs(self, text_docs: dict[str, str]):
-        try:
+        if self.overwrite:
+            self.__data = text_docs
+        else:
             self._data.update(text_docs)
-        except FileNotFoundError as e:
-            if self.overwrite:
-                self.__data = text_docs
-            else:
-                raise e
         self._write_documents(self._data)
 
     def _write_documents(self, data):

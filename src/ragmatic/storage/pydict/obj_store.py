@@ -135,13 +135,10 @@ class PydictObjStore:
         return self.__data
     
     def store_data(self, data: dict[str, t.Any]):
-        try:
+        if self.overwrite:
+            self.__data = data
+        else:
             self._data.update(data)
-        except FileNotFoundError as e:
-            if self.overwrite:
-                self.__data = data
-            else:
-                raise e
         self._write_data(self._data, self.filepath)
 
     def _write_data(self, data, filepath):

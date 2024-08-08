@@ -44,20 +44,20 @@ pipelines:
         summarizer: pycode
         storage: localpy
         document_source:
-          type: pycode_filesystm
+          type: pycode_filesystem
           config:
             root_path: ./src
     - action: encode
       config:
         encoder: plaintext
         document_source: 
-          type: text_storage
+          type: storage
           config: localpy
         storage: localpy
 rag_query_command:
   rag_agent: pycode
   document_source:
-    type: text_storage
+    type: pycode_filesystem
     config:
       root_path: ./src
-    
+  

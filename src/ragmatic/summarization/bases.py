@@ -1,4 +1,4 @@
-from typing import List, Callable
+from typing import List, Callable, Optional
 import os
 from logging import getLogger
 
@@ -43,7 +43,7 @@ class SummarizerBase:
 
     def summarize(self, documents: dict[str, str] = None) -> dict[str, list[str]]:
         docs = documents
-        _jobs = [(self._file_path_to_doc_name(path), text) for path, text in docs.items()]
+        _jobs = [(name, text) for name, text in docs.items()]
         logger.info(f"Summarizing {len(_jobs)} code documents...")
         summary_responses = thread_map(self.summarize_document, [doc for _, doc in _jobs])
         self._summaries = dict(zip([doc_name for doc_name, _ in _jobs], summary_responses))
@@ -69,5 +69,5 @@ class SummarizerBase:
         return self._document_prompt + "\n---\n" + code_doc
     
     def _file_path_to_doc_name(self, file_path: str) -> str:
-        return os.path.basename(file_path)
+        return file_path
     

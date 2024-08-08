@@ -25,10 +25,13 @@ def rag_cmd(config: click.Path, query: str):
     rag_agent_component_config: RagAgentComponentConfig =\
         config.components.rag_agents[cmd_config.rag_agent]
     rag_action_config = RagActionConfig(
-        **dict(document_source=cmd_config.document_source, query=query),
-        **rag_agent_component_config.model_dump()
+        **dict(
+            document_source=cmd_config.document_source,
+            query=query,
+            rag_agent=rag_agent_component_config.model_dump()
+        )
     )
-    config_factory: ActionConfigFactory = get_action_config_factory("rag")
+    config_factory: ActionConfigFactory = get_action_config_factory("rag", config)
     rag_action_config = config_factory.dereference_action_config(rag_action_config)
 
     print(RagAction(rag_action_config).execute())

@@ -35,9 +35,9 @@ class PyCodeSummarizer(SummarizerBase):
         return re.findall(r"<summary>(.*?)</summary>", response, re.DOTALL)
     
     def _file_path_to_doc_name(self, file_path: str) -> str:
-        return self._file_path_to_module_name(file_path)
+        rel_path = super()._file_path_to_doc_name(file_path)
+        return self._file_path_to_module_name(rel_path)
 
-    def _file_path_to_module_name(self, file_path: str) -> str:
-        relative_path = os.path.relpath(file_path, self.root_dir)
-        module_name = os.path.splitext(relative_path)[0].replace(os.path.sep, '.')
+    def _file_path_to_module_name(self, rel_path: str) -> str:
+        module_name = os.path.splitext(rel_path)[0].replace(os.path.sep, '.')
         return module_name

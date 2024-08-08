@@ -1,8 +1,11 @@
 import typing as t
 from pydantic import BaseModel
+from ragmatic.common_types import TypeAndConfig
 
+class ActionConfig(BaseModel):
 
-class ActionConfig(BaseModel):    
+    document_source: t.Optional[TypeAndConfig] = None
+
     class Config:
         extra = "allow"
 

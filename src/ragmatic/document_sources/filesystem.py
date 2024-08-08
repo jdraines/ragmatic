@@ -16,7 +16,7 @@ class FilesystemDocumentSource(DocumentSourceBase):
     def __init__(self, config: FilesystemDocumentSourceConfig):
         config = FilesystemDocumentSourceConfig(**config)
         super().__init__(config)
-        self.root_path = config.root_path
+        self.root_path = os.path.abspath(config.root_path)
 
     def get_documents(self, document_names: t.Optional[list[str]] = None) -> dict[str, str]:
         if document_names is None:
@@ -26,13 +26,13 @@ class FilesystemDocumentSource(DocumentSourceBase):
     def _get_documents_by_names(self, document_names: list[str]) -> dict[str, str]:
         documents = {}
         for name in document_names:
-            path = os.path.join(self.root_path, name)
+            path = self._document_name_to_file_path(name)
             with open(path, "r") as f:
                 documents[name] = f.read()
         return documents
     
     def _get_all_documents(self) -> dict[str, str]:
-        walked = list(os.walk(self.root_dir))
+        walked = list(os.walk(self.root_path))
         documents = {}
         for root, _, files in walked:
             for file in files:
@@ -42,9 +42,13 @@ class FilesystemDocumentSource(DocumentSourceBase):
                     with open(file_path, 'r') as file:
                         doc = file.read()
                     documents[doc_name] = doc
+        return documents
+
+    def _document_name_to_file_path(self, doc_name: str) -> str:
+        return os.path.join(self.root_path, doc_name)
 
     def _file_path_to_doc_name(self, file_path: str) -> str:
-        return file_path
+        return os.path.relpath(file_path, self.root_path)
 
 
 class PycodeFilesystemDocumentSource(FilesystemDocumentSource):
@@ -52,5 +56,16 @@ class PycodeFilesystemDocumentSource(FilesystemDocumentSource):
     name = "pycode_filesystem"
     file_filters: t.List = [(lambda x: x.endswith('.py'))]
     
+    def _document_name_to_file_path(self, doc_name: str) -> str:
+        if not doc_name.endswith('.py'):
+            # assume a module name
+            doc_name = doc_name.replace('.', os.path.sep) + '.py'
+        return super()._document_name_to_file_path(doc_name)
+
     def _file_path_to_doc_name(self, file_path: str) -> str:
-        return file_path
+        relpath = super()._file_path_to_doc_name(file_path)
+        return self._rel_path_to_module_name(relpath)
+        
+    def _rel_path_to_module_name(self, rel_path: str) -> str:
+        module_name = os.path.splitext(rel_path)[0].replace(os.path.sep, '.')
+        return module_name

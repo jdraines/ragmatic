@@ -118,13 +118,10 @@ class PydictVectorStore(VectorStore):
         return self.__data
 
     def store_vectors(self, vectors: dict[str, np.ndarray]):
-        try:
+        if self.overwrite:
+            self.__data = vectors
+        else:
             self._data.update(vectors)
-        except FileNotFoundError as e:
-            if self.overwrite:
-                self.__data = vectors
-            else:
-                raise e
         logger.info(f"Storing vectors to {self.filepath}")
         self._write_vectors(self._data)
 
