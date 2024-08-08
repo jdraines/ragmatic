@@ -4,6 +4,7 @@ from pathlib import Path
 import typing as t
 
 import yaml
+from deepmerge import always_merger, Merger
 
 from ._types import MasterConfig
 from ...actions.bases import ActionConfig
@@ -11,6 +12,11 @@ from ...actions.encode import EncodeActionConfig
 from ...actions.summarize import SummarizeActionConfig
 from ...actions.rag import RagActionConfig
 from ...rag.bases import TypeAndConfig, StoreConfig
+from .defaults import (
+    get_component_config,
+    get_pipelines_config,
+    get_rag_query_command_config,
+)
 
 logger = getLogger(__name__)
 
@@ -20,6 +26,53 @@ def load_config(configpath: Path = None) -> MasterConfig:
         config = yaml.safe_load(f)
     return MasterConfig(**config)
 
+
+def get_default_config() -> MasterConfig:
+    return MasterConfig(
+        project_name="",
+        components=get_component_config(),
+        pipelines=get_pipelines_config(),
+        rag_query_command=get_rag_query_command_config()
+    )
+
+
+def merge_defaults(config: MasterConfig,
+                   component_config_name: str = "default",
+                   pipelines_config_name: str = "default",
+                   rag_query_command_config_name: str = "default"
+                   ) -> MasterConfig:
+    config_d = config.model_dump()
+    component_config = config_d.get("components", {})
+    pipelines_config = config_d.get("pipelines", {})
+    rag_query_command = config_d.get("rag_query_command", {})
+    
+    component_config = always_merger.merge(
+        get_component_config(component_config_name),
+        component_config
+    )
+
+    pipelines_merger = Merger(
+        [
+            (dict, "merge"),
+            (list, "override")
+        ],
+        ["override"],
+        ["override"]
+    )
+    pipelines_config = pipelines_merger.merge(
+        get_pipelines_config(pipelines_config_name),
+        pipelines_config
+    )
+    rag_query_command = always_merger.merge(
+        get_rag_query_command_config(rag_query_command_config_name),
+        rag_query_command
+    )
+    return MasterConfig(
+        project_name=config.project_name,
+        components=component_config,
+        pipelines=pipelines_config,
+        rag_query_command=rag_query_command
+    )
 
 class ActionConfigFactory:
     

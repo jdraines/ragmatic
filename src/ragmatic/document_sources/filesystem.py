@@ -2,6 +2,7 @@ import os
 import typing as t
 from pydantic import BaseModel, Field
 from .bases import DocumentSourceBase
+from ragmatic.utils import ALLOWED_FILE_TYPES
 
 
 class FilesystemDocumentSourceConfig(BaseModel):
@@ -11,7 +12,7 @@ class FilesystemDocumentSourceConfig(BaseModel):
 class FilesystemDocumentSource(DocumentSourceBase):
     
     name = "filesystem"
-    file_filters: t.List[t.Callable[[str], bool]] = [(lambda x: True)]
+    file_filters: t.List[t.Callable[[str], bool]] = [(lambda x: x.split(".")[-1] in ALLOWED_FILE_TYPES)]
 
     def __init__(self, config: FilesystemDocumentSourceConfig):
         config = FilesystemDocumentSourceConfig(**config)

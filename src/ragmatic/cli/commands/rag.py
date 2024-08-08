@@ -3,6 +3,8 @@ from logging import getLogger
 
 from ragmatic.cli.configuration.tools import (
     load_config,
+    get_default_config,
+    merge_defaults,
     MasterConfig,
     get_action_config_factory,
     ActionConfigFactory
@@ -17,10 +19,11 @@ logger = getLogger(__name__)
 
 
 @click.command('rag-query')
-@click.option('--config', type=click.Path(exists=True), required=True)
 @click.option('--query', type=str, required=True)
+@click.option('--config', type=click.Path(exists=True))
 def rag_cmd(config: click.Path, query: str):
-    config: MasterConfig = load_config(config)
+    config: MasterConfig = load_config(config) or get_default_config()
+    config = merge_defaults(config)
     cmd_config = config.rag_query_command
     rag_agent_component_config: RagAgentComponentConfig =\
         config.components.rag_agents[cmd_config.rag_agent]
