@@ -129,9 +129,9 @@ configured in Ragmatic are:
 
 Ragmatic allows you to configure multiple pipelines and then invoke them with the `ragmatic run-pipeline [PIPELINE_NAME]` command.
 A pipeline is a series of `Actions` that are executed in order. The `Actions` that are currently available are:
-- summarize - use an llm to summarize documents
-- encode - use an encoder model to generate embeddings from text
-- rag - use a rag agent to answer questions about the documents
+- `summarize` - use an llm to summarize documents
+- `encode` - use an encoder model to generate embeddings from text
+- `rag` - use a rag agent to answer questions about the documents
 
 ### rag_query_command
 
