@@ -1,12 +1,6 @@
 import os
 
-from pydantic import BaseModel
 from .bases import RagAgentBase
-
-
-class RagAgentConfig(BaseModel):
-    llm_client_type: str
-    llm_config: dict
 
 
 class PyCodeRagAgent(RagAgentBase):
@@ -21,16 +15,11 @@ class PyCodeRagAgent(RagAgentBase):
         "I'm a python developer, and I have a question about some code in a "
         "codebase. I'll first ask my question, and then I'll share a number of "
         "code files all from the codebase. Please answer my question as it "
-        "relates to these files. Here's the question, followed by divider and "
+        "relates to these files. Here's the question, followed by a divider and "
         "then the codebase files:"
     )
 
     file_filters = [(lambda x: x.endswith('.py'))]
-
-    def module_name_to_file_path(self, module_name: str):
-        parts = module_name.split(".")
-        parts[-1] = parts[-1] + ".py"
-        return os.path.join(self.root_dir, *parts)
     
     def build_user_message(self, query: str, context_docs: dict[str, str]):
         context_block = ""

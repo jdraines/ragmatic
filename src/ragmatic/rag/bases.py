@@ -54,9 +54,6 @@ class RagAgentBase:
         embedder_class = get_embedder_cls(self.config.encoder.type)
         embedder_config = self.config.encoder.config
         return embedder_class(embedder_config)
-
-    def module_name_to_file_path(self, module_name: str):
-        raise NotImplementedError
     
     def query(self, query: str):
         encoded_query = self._embedder.encode([query])[0]

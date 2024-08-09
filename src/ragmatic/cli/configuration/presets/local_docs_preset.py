@@ -58,8 +58,8 @@ _component_config = {
         }
     },
     "rag_agents": {
-        "pycode": {
-            "type": "python_code",
+        "generic": {
+            "type": "generic",
             "config": {
                 "llm": "openai",
                 "storage": "localpy",
@@ -86,7 +86,7 @@ _pipelines_config = {
 }
 
 _rag_query_command_config = {
-    "rag_agent": "pycode",
+    "rag_agent": "generic",
     "document_source": "local_directory"
 }
 

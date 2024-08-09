@@ -3,7 +3,8 @@ from .bases import RagAgentBase
 from ..utils import import_object
 
 _rag_agents =  {
-    "python_code": "ragmatic.rag.pycode_rag_agent.PyCodeRagAgent"
+    "python_code": "ragmatic.rag.pycode_rag_agent.PyCodeRagAgent",
+    "generic": "ragmatic.rag.generic.GenericRagAgent",
 }
 
 

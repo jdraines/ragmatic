@@ -19,6 +19,19 @@ _component_config.update({
             "type": "storage",
             "config": "localpy"
         }
+    },
+    "rag_agents": {
+        "pycode": {
+            "type": "python_code",
+            "config": {
+                "llm": "openai",
+                "storage": "localpy",
+                "encoder": "plaintext",
+                "n_nearest": "${n_nearest}",
+                "prompt": "",
+                "system_prompt": ""
+            }
+        }
     }
 })
 
@@ -48,6 +61,7 @@ _pipelines_config = {
 
 _rag_query_command_config = local_docs_preset.rag_query_command.copy()
 _rag_query_command_config.update({
+    "rag_agent": "pycode",
     "document_source": "local_python_package"
 })
 
