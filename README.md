@@ -16,9 +16,9 @@ pip install -e "./ragmatic[hugging-face]"
 Try it out
 ----------
 
-!!! note
-    In order to run these examples, you will need to have an OpenAI API key. We
-    will set that key as an environment variable.
+> [!NOTE]
+> In order to run these examples, you will need to have an OpenAI API key. We
+> will set that key as an environment variable.
 
 The `examples/` directory contains a couple of examples to get you started. The
 first one to look at is [examples/winnie_the_pooh](./examples/winnie_the_pooh/).
