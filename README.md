@@ -28,10 +28,10 @@ First, cd into that directory:
 ```bash
 cd examples/winnie_the_pooh
 ```
-
-Ragmatic splits the RAG application into two main parts: A pipeline that
-generates embeddings from text, and then a RAG agent that uses those embeddings
-to answer questions.
+> [!INFO]
+> Ragmatic splits the RAG application into two main parts: A pipeline that
+> generates embeddings from text, and then a RAG agent that uses those embeddings
+> to answer questions.
 
 We'll start by running the pipeline with the following command:
 
