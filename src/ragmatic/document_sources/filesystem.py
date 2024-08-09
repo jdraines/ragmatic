@@ -18,6 +18,8 @@ class FilesystemDocumentSource(DocumentSourceBase):
         config = FilesystemDocumentSourceConfig(**config)
         super().__init__(config)
         self.root_path = os.path.abspath(config.root_path)
+        if not os.path.exists(self.root_path):
+            raise FileNotFoundError(f"Root path {self.root_path} does not exist.")
 
     def get_documents(self, document_names: t.Optional[list[str]] = None) -> dict[str, str]:
         if document_names is None:

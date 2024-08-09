@@ -10,10 +10,11 @@ from ragmatic.common_types import TypeAndConfig
 
 class RagQueryCommandConfig(BaseModel):
     rag_agent: str
-    document_source: TypeAndConfig
+    document_source: t.Union[str, TypeAndConfig]
 
 
 class ComponentConfig(BaseModel):
+    document_sources: Optional[Dict[str, DocumentSourceComponentConfig]] = Field(default=None)
     storage: Optional[Dict[str, StorageComponentConfig]] = Field(default=None)
     llms: Optional[Dict[str, LLMComponentConfig]] = Field(default=None)
     summarizers: Optional[Dict[str, SummarizerComponentConfig]] = Field(default=None)

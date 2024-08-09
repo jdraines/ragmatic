@@ -13,9 +13,7 @@ class PyCodeSummarizer(SummarizerBase):
     _system_prompt = (
         "You are an assistant who is an expert in Python programming who pays "
         "careful attention to details of code structure, but is also able to "
-        "provide high-level summaries of code and its functionality. Your answers "
-        "are expected to be concise and informative."
-
+        "provide high-level summaries of code and its functionality."
     )
     _document_prompt = (
         "Please review the following Python code and provide several summaries. "

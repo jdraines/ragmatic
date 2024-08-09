@@ -21,7 +21,7 @@ logger = getLogger(__name__)
 
 class RagActionConfig(ActionConfig):
     rag_agent: t.Union[str, RagAgentComponentConfig]
-    document_source: TypeAndConfig
+    document_source: t.Union[str, TypeAndConfig]
     query: str
 
 

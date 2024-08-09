@@ -7,27 +7,40 @@ from ..configuration._types import MasterConfig
 from ..configuration.tools import (
     load_config,
     get_action_config_factory,
-    get_default_config,
     merge_defaults,
 )
 from ...actions.bases import Action
 from ...actions.action_factory import get_action_cls
+from ..configuration.presets.preset_factory import get_preset
 
 logger = getLogger(__name__)
 
 
-@click.command('run')
-@click.argument('pipeline')
-@click.option('--config', type=click.Path(exists=True), required=True)
-@click.option('--pipeline-preset', type=click.Choice(['default', 'pycode']), default='default')
-def run_cmd(pipeline: str, config: click.Path, pipeline_preset: str):
-    config: MasterConfig = load_config(config) or get_default_config()
-    config = merge_defaults(config, pipelines_config_name=pipeline_preset)
+@click.command('run-pipeline')
+@click.argument('pipeline', type=str, required=False, default=None)
+@click.option('--config', type=click.Path(exists=True))
+@click.option('--preset', type=click.Choice(['local_docs', 'pycode']), default='local_docs')
+@click.option('--var', '-v', type=str, multiple=True, help="Variables to override in the preset, in key=var format")
+def run_cmd(pipeline: t.Union[str, None], config: click.Path, preset: str, var: list):
+    vars = dict(v.split('=') for v in var)
+    preset_data = get_preset(preset)
+    preset_config = preset_data.get_config(**vars)
+    config: MasterConfig = load_config(config) if config else preset_config
+    if config != preset_config:
+        config = merge_defaults(config, preset_data, **vars)
+    if pipeline is None:
+        first_preset_pipeline_name = list(preset_config.pipelines.keys())[0]
+        if first_preset_pipeline_name not in config.pipelines:
+            pipeline = list(config.pipelines.keys())[0]
+        else:
+            pipeline = first_preset_pipeline_name
     pipeline_config = config.pipelines[pipeline]
+    logger.info(f"Running pipeline: {pipeline}")
     for element in pipeline_config:
         action_name = element.action
         action_cls: t.Type[Action] = get_action_cls(action_name)
         action_config_factory = get_action_config_factory(action_name, config)
         action_config = action_config_factory.dereference_action_config(element.config)
         action: Action = action_cls(action_config)
+        logger.info(f"Running action: {action_name}")
         action.execute()

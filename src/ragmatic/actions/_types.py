@@ -6,6 +6,11 @@ from ..summarization.bases import SummarizerConfig
 from ..rag.bases import RagAgentConfig
 
 
+class DocumentSourceComponentConfig(BaseModel):
+    type: t.Literal["storage", "filesystem", "pycode_filesystem"]
+    config: t.Union[str, dict] = Field(default_factory=dict)
+
+
 class LLMComponentConfig(BaseModel):
     type: str
     config: dict

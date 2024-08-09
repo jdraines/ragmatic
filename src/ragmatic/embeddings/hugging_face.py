@@ -1,11 +1,13 @@
 import os
 import typing as t
 from itertools import product
+import logging
 from logging import getLogger
+import re
 
 import tqdm
 import numpy as np
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 import torch
 import torch.nn.functional as F
 from transformers import AutoModelForCausalLM, AutoModel, AutoTokenizer
@@ -25,6 +27,7 @@ def _get_salesforce_model_names():
 
 
 class HuggingFaceEmbeddingConfig(BaseModel):
+    model_config  = ConfigDict(protected_namespaces=())
     model_name: str
     tokenizer_config: dict = {}
     save_filepath: str = "embedding_model.pkl"
@@ -64,13 +67,20 @@ class HuggingFaceTransformerEmbedder(Embedder):
         assert self._tokenizer is not None
         return self._tokenizer
 
+    def _silence_loggers(self):
+        to_silence = ["^transformers", "^torch"]
+        prefix_re = re.compile(fr'^(?:{ "|".join(to_silence) })')
+        for name in logging.root.manager.loggerDict:
+            if re.match(prefix_re, name):
+                logging.getLogger(name).setLevel(logging.ERROR)
+
     def _download_model(self):
-        logger.info(f"Downloading model {self.model_name!r}")
+        logger.info(f"Loading model {self.model_name!r}")
         self._model = self._auto_model_class.from_pretrained(self.model_name)
         if self.save_model:
             logger.info(f"Saving model to {self.save_filepath}")
             self._model.save(self.save_filepath)
-        logger.info(f"Downloading tokenizer {self.model_name!r}")
+        logger.info(f"Loading tokenizer {self.model_name!r}")
         self._tokenizer = AutoTokenizer.from_pretrained(self.model_name)
         if self.save_model:
             tokenizer_filepath = os.path.dirname(self.save_filepath) + "/tokenizer.pkl"
@@ -87,6 +97,9 @@ class HuggingFaceTransformerEmbedder(Embedder):
     def encode(self, docs: t.Sequence[str]) -> t.Sequence[t.Sequence[float]]:
         embeddings = []
         for doc in tqdm.tqdm(docs):
+            if not doc:
+                embeddings.append(np.zeros((1, 3072)))
+                continue
             embeddings.append(
                 self._encode_doc(doc)
             )

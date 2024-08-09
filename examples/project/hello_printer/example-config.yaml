@@ -1,6 +1,14 @@
 project_name: hello_printer
 root_path: ./src  # a relative path in this case implies you will run the `ragmatic` command within this same directory
 components:
+  document_sources:
+    local_python_package:
+      type: pycode_filesystem
+      config:
+        root_path: ./src
+    localpy_storage:
+      type: storage
+      config: localpy
   storage:
     localpy:
       data_type: omni
@@ -43,21 +51,13 @@ pipelines:
         root_path: ./src
         summarizer: pycode
         storage: localpy
-        document_source:
-          type: pycode_filesystem
-          config:
-            root_path: ./src
+        document_source: local_python_package
     - action: encode
       config:
         encoder: plaintext
-        document_source: 
-          type: storage
-          config: localpy
+        document_source: localpy_storage
         storage: localpy
 rag_query_command:
   rag_agent: pycode
-  document_source:
-    type: pycode_filesystem
-    config:
-      root_path: ./src
+  document_source: local_python_package
   

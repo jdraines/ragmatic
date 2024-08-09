@@ -12,11 +12,7 @@ from ...actions.encode import EncodeActionConfig
 from ...actions.summarize import SummarizeActionConfig
 from ...actions.rag import RagActionConfig
 from ...rag.bases import TypeAndConfig, StoreConfig
-from .defaults import (
-    get_component_config,
-    get_pipelines_config,
-    get_rag_query_command_config,
-)
+from ..configuration.presets.preset_factory import get_preset, PresetData
 
 logger = getLogger(__name__)
 
@@ -27,19 +23,14 @@ def load_config(configpath: Path = None) -> MasterConfig:
     return MasterConfig(**config)
 
 
-def get_default_config() -> MasterConfig:
-    return MasterConfig(
-        project_name="",
-        components=get_component_config(),
-        pipelines=get_pipelines_config(),
-        rag_query_command=get_rag_query_command_config()
-    )
+def get_preset_config(preset_name, **vars) -> MasterConfig:
+    preset = get_preset(preset_name)
+    return preset.get_config(**vars)
 
 
 def merge_defaults(config: MasterConfig,
-                   component_config_name: str = "default",
-                   pipelines_config_name: str = "default",
-                   rag_query_command_config_name: str = "default"
+                   preset_data: PresetData = None,
+                   **vars
                    ) -> MasterConfig:
     config_d = config.model_dump()
     component_config = config_d.get("components", {})
@@ -47,7 +38,7 @@ def merge_defaults(config: MasterConfig,
     rag_query_command = config_d.get("rag_query_command", {})
     
     component_config = always_merger.merge(
-        get_component_config(component_config_name),
+        preset_data.get_component_config(**vars),
         component_config
     )
 
@@ -60,11 +51,11 @@ def merge_defaults(config: MasterConfig,
         ["override"]
     )
     pipelines_config = pipelines_merger.merge(
-        get_pipelines_config(pipelines_config_name),
+        preset_data.get_pipelines_config(**vars),
         pipelines_config
     )
     rag_query_command = always_merger.merge(
-        get_rag_query_command_config(rag_query_command_config_name),
+        preset_data.get_rag_query_command_config(**vars),
         rag_query_command
     )
     return MasterConfig(
@@ -83,6 +74,10 @@ class ActionConfigFactory:
         raise NotImplementedError
 
     def dereference_document_source(self, document_source: TypeAndConfig) -> TypeAndConfig:
+
+        if isinstance(document_source, str):
+            document_source = self.master_config.components.document_sources[document_source]
+
         if all([
             document_source.type == "storage",
             isinstance(document_source.config, str)
