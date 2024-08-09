@@ -118,12 +118,12 @@ Ragmatic allows you to configure a number of reusable components. By declaring t
 section, you can use them in multiple pipelines (or multiple times in the same pipeline). The `components` that are
 configured in Ragmatic are:
 
-- document_sources - literally, the sources of the documents
-- storage - storage abstractions that allow you to save and load data between pipeline steps and more long-term
-- llms - adapters for different language models. (Currently `openai` and `anthropic` are supported.)
-- summarizers - a component that allows you to generate new documents from existing ones (e.g. "describg this code file") using an llm
-- encoders - a component that allows you to generate embeddings from text
-- rag_agents - a component that puts together the RAG query process. In this component, you reference previously a defined llm, storage adapter, and encoder.
+- `document_sources` - literally, the sources of the documents
+- `storage` - storage abstractions that allow you to save and load data between pipeline steps and more long-term
+- `llms` - adapters for different language models. (Currently `openai` and `anthropic` are supported.)
+- `summarizers` - a component that allows you to generate new documents from existing ones (e.g. "describg this code file") using an llm
+- `encoders` - a component that allows you to generate embeddings from text
+- `rag_agents` - a component that puts together the RAG query process. In this component, you reference previously a defined llm, storage adapter, and encoder.
 
 ### pipelines
 
