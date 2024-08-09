@@ -94,7 +94,7 @@ Digging deeper
 --------------
 
 In the Winnie the Pooh example, we ran our rag agent using the default presets. (You can choose a preset by setting the
-`--preset` parameter to one of the presets in the `src/ragmatic/cli/configuration/presets/preset_factory.py` file. The
+`--preset` parameter to one of the presets in the [`src/ragmatic/cli/configuration/presets/preset_factory.py`](./src/ragmatic/cli/configuration/presets/preset_factory.py) file. The
 `local_docs` preset is the default one, and there is currently one other, `pycode`.)
 
 There is a ton of configuration that you can do with Ragmatic, however, if you use a config file. You can see an example
