@@ -119,7 +119,7 @@ section, you can use them in multiple pipelines (or multiple times in the same p
 configured in Ragmatic are:
 
 - `document_sources` - literally, the sources of the documents
-- `storage` - storage abstractions that allow you to save and load data between pipeline steps and more long-term
+- `storage` - storage abstractions that allow you to save and load data between pipeline steps and more long-term as well
 - `llms` - adapters for different language models. (Currently `openai` and `anthropic` are supported.)
 - `summarizers` - a component that allows you to generate new documents from existing ones (e.g. "describg this code file") using an llm
 - `encoders` - a component that allows you to generate embeddings from text
