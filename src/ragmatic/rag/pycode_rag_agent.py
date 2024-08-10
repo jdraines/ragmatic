@@ -1,9 +1,9 @@
 import os
 
-from .bases import RagAgentBase
+from . import bases
 
 
-class PyCodeRagAgent(RagAgentBase):
+class PyCodeRagAgent(bases.RagAgentBase):
 
     name = "python_code"
     system_prompt = (

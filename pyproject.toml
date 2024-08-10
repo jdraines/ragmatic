@@ -23,12 +23,13 @@ dependencies = [
     "joblib>=1.4.2",
     "click>=8.1.7",
     "pyyaml>=6.0.1",
-    "numpy>=2.0.1"
+    "numpy>=2.0.1",
+    "deepmerge>=1.1.1"
 ]
 
 # define optional dependencies
 [project.optional-dependencies]
-qa = [
+dev = [
     "pytest",
     "pytest-cov",
     # "pytest-asyncio",

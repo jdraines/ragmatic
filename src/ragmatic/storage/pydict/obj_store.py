@@ -7,8 +7,6 @@ import os
 
 from pydantic import BaseModel, Field
 
-from ...code_analysis.metadata_units.bases import ModuleData
-
 
 PARALLELIZATION_THRESHOLD = 1_000
 
@@ -177,7 +175,7 @@ class PydictObjStore:
         self._validate_query_key(key)
         self._validate_operator(op)
     
-    def _extract_value_from_key(self, key, module_data: ModuleData):
+    def _extract_value_from_key(self, key, module_data: t.Any):
         keyparts = key.split(".")
         return module_data.name, self._extract_value_from_keyparts(keyparts, module_data)
 

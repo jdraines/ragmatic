@@ -2,7 +2,7 @@ import typing as t
 from typing import List, Callable, Optional
 import os
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ConfigDict
 from ..llm_ops.bases import LLMClientBase
 from ..llm_ops.client_factory import get_llm_client_class
 from ..storage.store_factory import get_store_cls
@@ -20,8 +20,7 @@ class RagAgentConfig(BaseModel):
     n_nearest: Optional[int] = 10
     prompt: Optional[str] = Field(default="")
     system_prompt: Optional[str] = Field(default="")
-    class Config:
-        extra = "allow"
+    model_config = ConfigDict(extra= "allow")
 
 class RagAgentBase:
 

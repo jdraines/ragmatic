@@ -1,28 +1,6 @@
 from abc import ABC, abstractmethod
 import typing as t
-from ..code_analysis.metadata_units.bases import ModuleData
 
-
-class MetadataStore(ABC):
-
-    name: str = None
-
-    @abstractmethod
-    def store_all_module_data(self, modules: dict[str, ModuleData]):
-        pass
-
-    @abstractmethod
-    def store_module_data(self, module_data: ModuleData):
-        pass
-
-    @abstractmethod
-    def query_modules(self, query: t.Any):
-        pass
-
-    @abstractmethod
-    def get_module(self, module_name: str):
-        pass
-    
 
 class VectorStore(ABC):
     
@@ -66,28 +44,15 @@ class TextDocumentStore(ABC):
         pass
 
 
-class OmniStore(MetadataStore, VectorStore, TextDocumentStore):
+class OmniStore(VectorStore, TextDocumentStore):
     
     _vector_store: VectorStore = None
-    _metadata_store: MetadataStore = None
     _text_doc_store: TextDocumentStore = None
 
 
     def __init__(self, config):
         raise NotImplementedError
 
-    def store_all_module_data(self, modules: dict[str, ModuleData]):
-        return self._metadata_store.store_all_module_data(modules)
-
-    def store_module_data(self, module_data: ModuleData):
-        return self._metadata_store.store_module_data(module_data)
-
-    def query_modules(self, query: t.Any):
-        return self._metadata_store.query_modules(query)
-
-    def get_module(self, module_name: str):
-        return self._metadata_store.get_module(module_name)
-    
     def store_vectors(self, vectors: dict[str, t.Any]):
         return self._vector_store.store_vectors(vectors)
     
@@ -113,8 +78,6 @@ class OmniStore(MetadataStore, VectorStore, TextDocumentStore):
         return self._text_doc_store.get_all_documents()
 
     def __getattr__(self, name):
-        if hasattr(self._metadata_store, name):
-            return getattr(self._metadata_store, name)
         if hasattr(self._vector_store, name):
             return getattr(self._vector_store, name)
         if hasattr(self._text_doc_store, name):

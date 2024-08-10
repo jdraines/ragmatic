@@ -1,5 +1,5 @@
 import typing as t
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ConfigDict
 
 from ..summarization.bases import SummarizerConfig
 
@@ -14,9 +14,7 @@ class DocumentSourceComponentConfig(BaseModel):
 class LLMComponentConfig(BaseModel):
     type: str
     config: dict
-
-    class Config:
-        extra = "allow"
+    model_config = ConfigDict(extra= "allow")
 
 
 class EncoderComponentConfig(BaseModel):
@@ -33,8 +31,7 @@ class SummarizerComponentConfig(BaseModel):
     
     class SummarizerComponentRefSubconfig(BaseModel):
         llm: str
-        class Config:
-            extra = "allow"
+        model_config = ConfigDict(extra= "allow")
 
     type: t.Literal["python_code"]
     config: t.Union[SummarizerComponentRefSubconfig, SummarizerConfig]

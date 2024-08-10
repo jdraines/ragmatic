@@ -1,12 +1,8 @@
+import typing as t
 from ..utils import import_object
-from .bases import MetadataStore
 from ragmatic.utils import import_object
 
 
-_metadata_stores = {
-    "elasticsearch": "ragmatic.storage.es_store.ElasticsearchMetadataStore",
-    "pydict": "ragmatic.storage.pydict.metadata_store.PydictMetadataStore"
-}
 
 _vector_stores = {
     "pydict": "ragmatic.storage.pydict.vector_store.PydictVectorStore"
@@ -21,7 +17,7 @@ _omni_stores = {
 }
 
 
-def get_store_cls(data_type:str, store_type: str) -> MetadataStore:
+def get_store_cls(data_type:str, store_type: str) -> t.Type:
     store_dict = globals()[f"_{data_type}_stores"]
     if store_type not in store_dict:
         try:
