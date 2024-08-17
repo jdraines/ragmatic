@@ -5,8 +5,8 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "ragmatic"
 version = "0.1.0b0"
-description = "A package for using retrieval-augmented generation as a knowledge base for question-answering about a codebase."
-authors = [{name = "Your Name", email = "your.email@example.com"}]
+description = "A package for creating retrieval-augmented generation apps"
+authors = [{name = "John Raines", email = "johndanielraiens@gmail.com"}]
 license = {text = "MIT"}
 readme = "README.md"
 requires-python = ">=3.10"
