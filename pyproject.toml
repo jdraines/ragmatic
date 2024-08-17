@@ -10,11 +10,6 @@ authors = [{name = "John Raines", email = "johndanielraiens@gmail.com"}]
 license = {text = "MIT"}
 readme = "README.md"
 requires-python = ">=3.10"
-classifiers = [
-    "Programming Language :: Python :: 3",
-    "License :: OSI Approved :: MIT License",
-    "Operating System :: OS Independent",
-]
 dependencies = [
     "openai>=1.37.1",
     "tenacity>=9.0.0",
@@ -26,8 +21,24 @@ dependencies = [
     "numpy>=2.0.1",
     "deepmerge>=1.1.1"
 ]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Development Status :: 4 - Beta",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+]
 
-# define optional dependencies
+[project.urls]
+Homepage = "https://github.com/jdraines/ragmatic"
+Repository = "https://github.com/jdraines/ragmatic"
+"Bug Tracker" = "https://github.com/jdraines/ragmatic/issues"
+
+[project.license]
+file = "LICENSE"
+
 [project.optional-dependencies]
 dev = [
     "pytest",
