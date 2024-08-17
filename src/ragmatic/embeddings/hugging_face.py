@@ -1,17 +1,17 @@
+import logging
 import os
+import re
 import typing as t
 from itertools import product
-import logging
 from logging import getLogger
-import re
 
-import tqdm
 import numpy as np
-from pydantic import BaseModel, ConfigDict
 import torch
 import torch.nn.functional as F
-from transformers import AutoModelForCausalLM, AutoModel, AutoTokenizer
+import tqdm
+from pydantic import BaseModel, ConfigDict
 from sklearn.preprocessing import normalize
+from transformers import AutoModel, AutoModelForCausalLM, AutoTokenizer
 
 from .bases import Embedder
 
@@ -21,21 +21,21 @@ logger = getLogger(__name__)
 def _get_salesforce_model_names():
     def _get_model_name(size, data):
         return f"Salesforce/codegen-{size}-{data}"
+
     sizes = ["350M", "2B", "6B", "16B"]
     data = ["nl", "mono", "multi"]
     return [_get_model_name(size, data) for size, data in product(sizes, data)]
 
 
 class HuggingFaceEmbeddingConfig(BaseModel):
-    model_config  = ConfigDict(protected_namespaces=())
+    model_config = ConfigDict(protected_namespaces=())
     model_name: str
     tokenizer_config: dict = {}
     save_filepath: str = "embedding_model.pkl"
     save_model: bool = True
-
+    expected_hidden_size: int = 1024
 
 class HuggingFaceTransformerEmbedder(Embedder):
-
     embedder_name = "hugging_face"
     _causal_lm_models = {
         *_get_salesforce_model_names(),
@@ -45,8 +45,10 @@ class HuggingFaceTransformerEmbedder(Embedder):
         self.config = config
         self.model_name = config["model_name"]
         self.tokenizer_config = config.get("tokenizer_config", {})
-        self.save_filepath = config.get("save_filepath", "embedding_model.pkl")
         self.save_model: bool = config.get("save_model", True)
+        self.save_filepath = config.get("save_filepath", "embedding_model.pkl")
+        self._expected_hidden_size = config.get("expected_hidden_size", 1024)
+        self._observed_hidden_size = 0
         self._auto_model_class = self._init_auto_model_class()
         self._model = None
         self._tokenizer = None
@@ -69,7 +71,7 @@ class HuggingFaceTransformerEmbedder(Embedder):
 
     def _silence_loggers(self):
         to_silence = ["^transformers", "^torch"]
-        prefix_re = re.compile(fr'^(?:{ "|".join(to_silence) })')
+        prefix_re = re.compile(rf'^(?:{ "|".join(to_silence) })')
         for name in logging.root.manager.loggerDict:
             if re.match(prefix_re, name):
                 logging.getLogger(name).setLevel(logging.ERROR)
@@ -83,14 +85,20 @@ class HuggingFaceTransformerEmbedder(Embedder):
         logger.info(f"Loading tokenizer {self.model_name!r}")
         self._tokenizer = AutoTokenizer.from_pretrained(self.model_name)
         if self.save_model:
-            tokenizer_filepath = os.path.dirname(self.save_filepath) + "/tokenizer.pkl"
+            tokenizer_filepath = (
+                os.path.dirname(self.save_filepath) + "/tokenizer.pkl"
+            )
             logger.info(f"Saving model to {tokenizer_filepath}")
             self._tokenizer.save_pretrained(tokenizer_filepath)
 
     def _load_model(self):
         logger.info(f"Loading model from {self.save_filepath}")
-        self._model = self._auto_model_class(self.save_filepath, trust_remote_code=True)
-        tokenizer_filepath = os.path.dirname(self.save_filepath) + "/tokenizer.pkl"
+        self._model = self._auto_model_class(
+            self.save_filepath, trust_remote_code=True
+        )
+        tokenizer_filepath = (
+            os.path.dirname(self.save_filepath) + "/tokenizer.pkl"
+        )
         logger.info(f"Loading tokenizer from  {tokenizer_filepath}")
         self._tokenizer = AutoTokenizer.from_pretrained(tokenizer_filepath)
 
@@ -98,11 +106,12 @@ class HuggingFaceTransformerEmbedder(Embedder):
         embeddings = []
         for doc in tqdm.tqdm(docs):
             if not doc:
-                embeddings.append(np.zeros((1, 3072)))
+                zero_length = (self._observed_hidden_size * 2) or (
+                    self._expected_hidden_size * 2
+                )
+                embeddings.append(np.zeros((1, zero_length)))
                 continue
-            embeddings.append(
-                self._encode_doc(doc)
-            )
+            embeddings.append(self._encode_doc(doc))
         return embeddings
 
     def _init_auto_model_class(self):
@@ -114,10 +123,9 @@ class HuggingFaceTransformerEmbedder(Embedder):
         tokens = self.tokenizer.tokenize(text)
         chunks = []
         for i in range(0, len(tokens), chunk_size - overlap):
-            chunk = tokens[i:i + chunk_size]
+            chunk = tokens[i : i + chunk_size]
             chunks.append(self.tokenizer.convert_tokens_to_string(chunk))
         return chunks
-
 
     def _encode_doc(self, doc):
         chunks = self.chunk_text(doc)
@@ -130,25 +138,41 @@ class HuggingFaceTransformerEmbedder(Embedder):
         embedding_stack = torch.stack(embeddings)
         return torch.mean(embedding_stack, dim=0).numpy()
 
-
     def _encode_chunk(self, doc):
         self.tokenizer.pad_token = self.tokenizer.eos_token
         inputs = self.tokenizer(doc, **self.tokenizer_config)
         with torch.no_grad():
             outputs = self.model(**inputs, output_hidden_states=True)
         last_hidden_state = outputs.hidden_states[-1]
-        last_state_mean_pooled = self.process_hidden_state(last_hidden_state, inputs["attention_mask"])
+        self._observed_hidden_size = last_hidden_state.shape[-1]
+        last_state_mean_pooled = self.process_hidden_state(
+            last_hidden_state, inputs["attention_mask"]
+        )
         next_last_hidden_state = outputs.hidden_states[-3]
-        next_last_state_mean_pooled = self.process_hidden_state(next_last_hidden_state, inputs["attention_mask"], pooling_strategy="attention")
-        return normalize(torch.cat([last_state_mean_pooled, next_last_state_mean_pooled], dim=-1))
+        next_last_state_mean_pooled = self.process_hidden_state(
+            next_last_hidden_state,
+            inputs["attention_mask"],
+            pooling_strategy="attention",
+        )
+        return normalize(
+            torch.cat(
+                [last_state_mean_pooled, next_last_state_mean_pooled], dim=-1
+            )
+        )
 
-
-    def process_hidden_state(self, hidden_state, attention_mask, pooling_strategy="mean"):
-        real_tokens_mask = attention_mask.unsqueeze(-1).expand(hidden_state.size()).float()
+    def process_hidden_state(
+        self, hidden_state, attention_mask, pooling_strategy="mean"
+    ):
+        # assumes hidden_state.size is (batch_size, seq_len, hidden_size)
+        real_tokens_mask = (
+            attention_mask.unsqueeze(-1).expand(hidden_state.size()).float()
+        )
         masked_hidden_state = hidden_state * real_tokens_mask
         if pooling_strategy == "mean":
             sum_embeddings = torch.sum(masked_hidden_state, dim=1)
-            sum_mask = torch.clamp(attention_mask.sum(dim=1, keepdim=True), min=1e-9)
+            sum_mask = torch.clamp(
+                attention_mask.sum(dim=1, keepdim=True), min=1e-9
+            )
             mean_pooled = sum_embeddings / sum_mask
             return mean_pooled
         elif pooling_strategy == "max":
@@ -156,9 +180,13 @@ class HuggingFaceTransformerEmbedder(Embedder):
             return max_pooled
         elif pooling_strategy == "attention":
             cls_vector = hidden_state[:, 0, :]
-            attention_scores = torch.matmul(hidden_state, cls_vector.unsqueeze(-1)).squeeze(-1)
+            attention_scores = torch.matmul(
+                hidden_state, cls_vector.unsqueeze(-1)
+            ).squeeze(-1)
             attention_scores = F.softmax(attention_scores, dim=-1)
-            attention_pooled = torch.bmm(attention_scores.unsqueeze(1), hidden_state).squeeze(1)
+            attention_pooled = torch.bmm(
+                attention_scores.unsqueeze(1), hidden_state
+            ).squeeze(1)
             return attention_pooled
         else:
             raise ValueError(f"Invalid pooling strategy {pooling_strategy}")

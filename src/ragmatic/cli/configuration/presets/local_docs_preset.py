@@ -3,6 +3,7 @@ from ._types import PresetData
 variable_defaults = {
     "local_documents_path": "./documents",
     "encoding_model_name": "dunzhang/stella_en_1.5B_v5",
+    "expected_hidden_size": 1536,
     "n_nearest": 10
 }
 
@@ -53,7 +54,8 @@ _component_config = {
                     "truncation": True,
                     "padding": "max_length"
                 },
-                "save_model": False
+                "save_model": False,
+                "expected_hidden_size": "${expected_hidden_size}"
             }
         }
     },
