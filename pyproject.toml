@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "ragmatic"
-version = "0.1.0b0"
+version = "0.1.0b1"
 description = "A package for creating retrieval-augmented generation apps"
 authors = [{name = "John Raines", email = "johndanielraiens@gmail.com"}]
 readme = "README.md"
