@@ -7,7 +7,6 @@ name = "ragmatic"
 version = "0.1.0b0"
 description = "A package for creating retrieval-augmented generation apps"
 authors = [{name = "John Raines", email = "johndanielraiens@gmail.com"}]
-license = {text = "MIT"}
 readme = "README.md"
 requires-python = ">=3.10"
 dependencies = [
