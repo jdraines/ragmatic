@@ -3,4 +3,4 @@
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
 export OPENAI_API_KEY=$(cat ~/.credentials/openai-api-key)
 ragmatic rag-query --config $SCRIPT_DIR/example-config.yaml \
-    --query "What appears to be the main purpose of this code?"
+    --query "How could I extend behavior of this codebase to perform some special operation following the open/closed principle?"

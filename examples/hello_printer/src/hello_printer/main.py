@@ -1,12 +1,5 @@
 from argparse import ArgumentParser
-from .caps_printer import CapsPrinter
-from .lower_case_printer import LowerCasePrinter
-
-
-_printers = {
-    "caps": CapsPrinter,
-    "lower": LowerCasePrinter
-}
+from . import registry as reg
 
 
 def get_args():
@@ -15,16 +8,9 @@ def get_args():
     return parser.parse_args()
 
 
-def get_printer(printer_type):
-    if printer_type not in _printers:
-        raise ValueError(f"Unknown printer type: {printer_type}")
-    return _printers[printer_type]()
-
-
-
 def main():
     args = get_args()
-    printer = get_printer(args.printer_type)
+    printer = reg.get_printer(args.printer_type)
     printer.print("Hello, World!")
 
 
