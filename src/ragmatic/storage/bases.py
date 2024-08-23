@@ -78,6 +78,9 @@ class OmniStore(VectorStore, TextDocumentStore):
     def get_document(self, key: str):
         return self._text_doc_store.get_document(key)
     
+    def get_documents(self, keys: list[str]):
+        return self._text_doc_store.get_documents(keys)
+    
     def get_all_documents(self):
         return self._text_doc_store.get_all_documents()
 
