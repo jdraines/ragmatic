@@ -9,12 +9,12 @@ class PresetData:
 
     def __init__(self,
                  components,
-                 piplines,
+                 pipelines,
                  rag_query_command,
                  variable_defaults: dict = None
                  ):
         self.components = components
-        self.pipelines = piplines
+        self.pipelines = pipelines
         self.rag_query_command = rag_query_command
         self.variable_defaults: dict = variable_defaults or {}
 

@@ -68,7 +68,7 @@ _rag_query_command_config.update({
 
 pycode_preset = PresetData(
     components=_component_config,
-    piplines=_pipelines_config,
+    pipelines=_pipelines_config,
     rag_query_command=_rag_query_command_config,
     variable_defaults=variable_defaults
 )
