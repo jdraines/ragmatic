@@ -8,8 +8,9 @@ from ..bases import TextDocumentStore
 
 
 class PydictTextDocumentStoreConfig(BaseModel):
-    overwrite: t.Optional[bool] = Field(default=True)
+    overwrite: t.Optional[bool] = Field(default=False)
     filepath: t.Optional[str] = Field(default=None)
+    allow_init: t.Optional[bool] = Field(default=True)
 
 
 class PydictTextDocumentStore(TextDocumentStore):
@@ -22,6 +23,7 @@ class PydictTextDocumentStore(TextDocumentStore):
         config = PydictTextDocumentStoreConfig(**config)
         self.config = config
         self.overwrite = config.overwrite
+        self.allow_init = config.allow_init
         self.filepath = self.config.filepath or self._default_filepath
         self.__data: dict[str, str] = {}
 
@@ -44,9 +46,11 @@ class PydictTextDocumentStore(TextDocumentStore):
 
     def _load_documents(self):
         if not os.path.exists(self.filepath):
+            if self.allow_init:
+                return
             raise FileNotFoundError(
                 f"Summaries not loaded: File {self.filepath} does not exist."
-            )
+            )   
         with open(self.filepath, "rb") as f:
             self.__data = pickle.load(f)
 

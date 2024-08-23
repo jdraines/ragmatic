@@ -99,8 +99,8 @@ class PydictObjStore:
         "countLt": lambda x, y: len(x) < y,
         "countGte": lambda x, y: len(x) >= y,
         "countLte": lambda x, y: len(x) <= y,
-        "in": lambda x, y: x in y,
-        "nin": lambda x, y: x not in y,
+        "in": lambda x, y: y in x,
+        "nin": lambda x, y: y not in x,
         "regex": lambda x, y: bool(re.match(y, x)),
     }
 
@@ -177,7 +177,13 @@ class PydictObjStore:
     
     def _extract_value_from_key(self, key, module_data: t.Any):
         keyparts = key.split(".")
-        return module_data.name, self._extract_value_from_keyparts(keyparts, module_data)
+        if hasattr(module_data, "name"):
+            module_name = module_data.name
+        elif hasattr(module_data, "__getitem__") and "name" in module_data:
+            module_name = module_data["name"]
+        else:
+            module_name = key
+        return module_name, self._extract_value_from_keyparts(keyparts, module_data)
 
     def _extract_value_from_keyparts(self, keyparts, obj):
         value = obj
