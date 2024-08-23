@@ -15,13 +15,8 @@ from ragmatic.common_types import TypeAndConfig
 logger = getLogger(__name__)
 
 
-class LLMTypeAndConfig(TypeAndConfig):
-    llm_client_type: str = Field(default="")
-    llm_config: dict = Field(default_factory=dict)
-
-
 class SummarizerConfig(BaseModel):
-    llm: LLMTypeAndConfig
+    llm: TypeAndConfig
     document_source: TypeAndConfig
 
 

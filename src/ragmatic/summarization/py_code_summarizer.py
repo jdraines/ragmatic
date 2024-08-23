@@ -37,5 +37,9 @@ class PyCodeSummarizer(SummarizerBase):
         return self._file_path_to_module_name(rel_path)
 
     def _file_path_to_module_name(self, rel_path: str) -> str:
+        # strip dots from the beginning of the path
+        rel_path = re.sub(r"^\.*", "", rel_path)
+        if rel_path.startswith(os.path.sep):
+            rel_path = rel_path[1:]
         module_name = os.path.splitext(rel_path)[0].replace(os.path.sep, '.')
         return module_name

@@ -57,7 +57,7 @@ class CosineSimilarity(QueryMethod):
                 query_vector,
                 doc_embeddings_matrix
             )
-        sorted_indices = np.argsort(similarities)[::-1].flatten()
+        sorted_indices = np.argsort(similarities).flatten()[::-1]
         results = [list(data.keys())[i] for i in sorted_indices]
         if limit := query.get('limit'):
             return results[:limit]
@@ -93,7 +93,8 @@ class CosineSimilarity(QueryMethod):
 class PydictVectorStoreConfig(BaseModel):
     filepath: t.Optional[str] = Field(default='vectors.pkl')
     default_query_method: t.Optional[str] = Field(default="cosine_similarity")
-    overwrite: t.Optional[bool] = Field(default=True)
+    overwrite: t.Optional[bool] = Field(default=False)
+    allow_init: t.Optional[bool] = Field(default=True)
 
 
 class PydictVectorStore(VectorStore):
@@ -107,6 +108,7 @@ class PydictVectorStore(VectorStore):
         config = PydictVectorStoreConfig(**config)
         self.config = config
         self.overwrite = config.overwrite
+        self.allow_init = config.allow_init
         self.filepath = os.path.expanduser(self.config.filepath)
         self.__data: dict[str, np.ndarray] = {}
         self._default_query_method = config.default_query_method
@@ -137,6 +139,8 @@ class PydictVectorStore(VectorStore):
 
     def _load_vectors(self):
         if not os.path.exists(self.filepath):
+            if self.allow_init:
+                return
             raise FileNotFoundError(
                 f"Vector data not loaded: File {self.filepath} does not exist."
             )

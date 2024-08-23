@@ -10,7 +10,7 @@ from .text_doc_store import PydictTextDocumentStore
 
 class PydictOmniStoreConfig(BaseModel):
     dirpath: t.Optional[str] = Field(default=None)
-    overwrite: t.Optional[bool] = Field(default=None)
+    overwrite: t.Optional[bool] = Field(default=True)
 
 
 class PydictOmniStore(OmniStore):

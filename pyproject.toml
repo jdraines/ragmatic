@@ -49,6 +49,12 @@ hugging-face = [
     "torch>=2.4.0",
     "scikit-learn>=1.5.1"
 ]
+openai = [
+    "openai>=1.37.1"
+]
+anthropic = [
+    "anthropic>=0.34.1"
+]
 
 [project.scripts]
 ragmatic = "ragmatic.cli:cli"
