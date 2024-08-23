@@ -26,7 +26,7 @@ jobs:
       url: https://pypi.org/p/ragmatic
     permissions:
       id-token: write
-    if: ${{ startsWith( github.head_ref, 'beta/' ) }} || ${{ startsWith( github.head_ref, 'release/' ) }} || ${{ startsWith( github.head_ref, 'hotfix/' ) }}
+    if: ${{ startsWith( github.head_ref, 'beta/' ) ||  startsWith( github.head_ref, 'release/' ) || startsWith( github.head_ref, 'hotfix/' ) }}
     steps:
     - name: checkout repo content
       uses: actions/checkout@v4
