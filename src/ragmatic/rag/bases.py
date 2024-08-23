@@ -33,6 +33,7 @@ class RagAgentBase:
     def __init__(self, config: RagAgentConfig, document_source: DocumentSourceBase):
         self.config = config
         self.prompt = config.prompt or self.prompt
+        self.system_prompt = config.system_prompt or self.system_prompt
         self._document_source = document_source
         self._n = config.n_nearest
         self._llm_client: LLMClientBase = self._initialize_llm_client()
