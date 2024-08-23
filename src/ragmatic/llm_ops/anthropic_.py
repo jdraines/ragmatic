@@ -23,12 +23,17 @@ class AnthropicClient(LLMClientBase):
         self.max_tokens = config.get("max_tokens", 4096)
         self.client = self._get_client()
 
-
     def _get_client(self):
         return Anthropic(
             api_key=self._plaintextkey(),
             default_headers=self.default_headers
         )
+
+    def _load_api_key(self) -> str:
+        key = super()._load_api_key()
+        if not key:
+            raise ValueError("anthropic API key not found.")
+        return key
 
     def send_message(self,
                      message: str,

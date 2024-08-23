@@ -50,7 +50,6 @@ class TestLLMClientBase:
         
         return MockLLMClient
 
-
     def test_init(self, config, mock_llmclient):
         config = config.copy()
         config["api_keypath"] = "/path/to/api/key.txt"

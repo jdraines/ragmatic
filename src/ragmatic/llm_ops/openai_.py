@@ -28,6 +28,12 @@ class OpenAIClient(LLMClientBase):
     def _get_client(self):
         return OpenAI(api_key=self._plaintextkey())
 
+    def _load_api_key(self) -> str:
+        key = super()._load_api_key()
+        if not key:
+            raise ValueError("openai API key not found.")
+        return key
+
     def send_message(self,
                      message: str,
                      system_prompt: str = None,
@@ -55,7 +61,7 @@ class OpenAIClient(LLMClientBase):
             if penultimate_role == "system":
                 messages[-2]["content"] = state.system_prompt
             else:
-                messages.insert(-2, {"role": "system", "content": state.system_prompt})
+                messages.insert(-1, {"role": "system", "content": state.system_prompt})
         
         response = self.client.chat.completions.create(
             model=state.model,
