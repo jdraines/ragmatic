@@ -8,7 +8,7 @@ class AnthropicContent(ContentBase):
     def get_content(self):
         return {
             "type": "text",
-            "text": self.msg.msg
+            "text": self.msg
         }
 
 

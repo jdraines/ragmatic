@@ -59,7 +59,10 @@ class LLMClientBase(LLMClient):
 
     def _load_api_key(self) -> str:
         if self._api_keyenvvar:
-            return self._b64key(os.environ.get(self._api_keyenvvar))
+            _key = os.environ.get(self._api_keyenvvar)
+            if not _key:
+                return None
+            return self._b64key(_key)
         if self._api_keypath:
             with open(self._api_keypath, "r") as f:
                 return self._b64key(f.read().strip())
