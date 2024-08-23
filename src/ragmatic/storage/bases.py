@@ -36,7 +36,11 @@ class TextDocumentStore(ABC):
         pass
 
     @abstractmethod
-    def get_document(self, key: str):
+    def get_document(self, key: str) -> str:
+        pass
+
+    @abstractmethod
+    def get_documents(self, keys: list[str]) -> list[str]:
         pass
 
     @abstractmethod
