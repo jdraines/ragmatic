@@ -39,7 +39,7 @@ class SummarizerComponentConfig(BaseModel):
 
 class StorageComponentConfig(BaseModel):
     data_type: t.Literal["metadata", "vector", "summary", "omni"]
-    type: t.Literal["elasticsearch", "pydict"]
+    type: t.Literal["pydict"]
     config: dict = Field(default_factory=dict)
 
 

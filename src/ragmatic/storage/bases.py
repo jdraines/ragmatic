@@ -36,7 +36,11 @@ class TextDocumentStore(ABC):
         pass
 
     @abstractmethod
-    def get_document(self, key: str):
+    def get_document(self, key: str) -> str:
+        pass
+
+    @abstractmethod
+    def get_documents(self, keys: list[str]) -> list[str]:
         pass
 
     @abstractmethod
@@ -73,6 +77,9 @@ class OmniStore(VectorStore, TextDocumentStore):
     
     def get_document(self, key: str):
         return self._text_doc_store.get_document(key)
+    
+    def get_documents(self, keys: list[str]):
+        return self._text_doc_store.get_documents(keys)
     
     def get_all_documents(self):
         return self._text_doc_store.get_all_documents()

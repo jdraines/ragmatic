@@ -23,8 +23,10 @@ class TextStoreDocumentSource(DocumentSourceBase):
 
     def get_documents(self, document_names: list[str] = None) -> dict[str, str]:
         if document_names:
-            return {
-                document_name: self._text_doc_store.get_document(document_name)
-                for document_name in document_names
-            }
+            return dict(
+                zip(
+                    document_names,
+                    self._text_doc_store.get_documents(document_names)
+                )
+            )
         return self._text_doc_store.get_all_documents()

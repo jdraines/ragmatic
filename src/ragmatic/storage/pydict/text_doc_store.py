@@ -53,5 +53,13 @@ class PydictTextDocumentStore(TextDocumentStore):
     def get_document(self, key: str):
         return self._data.get(key)
 
-    def get_all_documents(self):
+    def get_documents(self, keys: list[str]) -> list[str]:
+        docs = []
+        for key in keys:
+            if key not in self._data:
+                raise KeyError(f"Document with key {key} not found in storage.")
+            docs.append(self._data.get(key))
+        return docs
+
+    def get_all_documents(self) -> dict[str, str]:
         return self._data

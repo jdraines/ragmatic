@@ -31,6 +31,11 @@ def mock_text_doc_store(documents):
         def get_document(self, document_name: str):
             return self.__documents.get(document_name)
         
+        def get_documents(self, document_names: list[str]):
+            return [
+                self.__documents.get(doc_name) for doc_name in document_names
+            ]
+
         def store_text_docs(self, docs: dict[str, str]):
             self.__documents.update(docs)
 
