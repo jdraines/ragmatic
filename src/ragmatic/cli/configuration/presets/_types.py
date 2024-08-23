@@ -4,6 +4,7 @@ import json
 
 from .._types import MasterConfig
 
+
 class PresetData:
 
     def __init__(self,
