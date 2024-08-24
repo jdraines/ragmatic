@@ -24,7 +24,12 @@ def ref_constructor(loader, node):
     return Ref(value)
 
 
+def ref_representer(dumper, data):
+    return dumper.represent_scalar(u'!ref', data.loc)
+
+
 yaml.add_constructor(u'!ref', ref_constructor, yaml.SafeLoader)
+yaml.add_representer(Ref, ref_representer)
 
 
 def resolve_references(data, root=None):
