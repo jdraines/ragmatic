@@ -1,21 +1,18 @@
-from typing import List, Callable, Optional
-import os
+from typing import List, Callable
 from logging import getLogger
 
-from ragmatic.utils.refs import RefBaseModel, Field
+from ragmatic.utils.refs import RefBaseModel
 from tqdm.contrib.concurrent import thread_map
 
 from ..llm_ops.bases import LLMClientBase
 from ..llm_ops.client_factory import get_llm_client_class
-from ..document_sources.source_factory import get_document_source_cls
-from ..document_sources.bases import DocumentSourceBase
 from ragmatic.common_types import TypeAndConfig
 
 
 logger = getLogger(__name__)
 
 
-class SummarizerConfig(RefBaseModel)):
+class SummarizerConfig(RefBaseModel):
     llm: TypeAndConfig
     document_source: TypeAndConfig
 

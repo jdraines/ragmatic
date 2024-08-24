@@ -1,7 +1,5 @@
 import typing as t
-from ..utils import import_object
 from ragmatic.utils import import_object
-
 
 
 _vector_stores = {

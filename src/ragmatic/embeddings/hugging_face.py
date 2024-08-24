@@ -9,7 +9,8 @@ import numpy as np
 import torch
 import torch.nn.functional as F
 import tqdm
-from ragmatic.utils.refs import RefBaseModel, ConfigDict
+from ragmatic.utils.refs import RefBaseModel
+from pydantic import ConfigDict
 from sklearn.preprocessing import normalize
 from transformers import AutoModel, AutoModelForCausalLM, AutoTokenizer
 
@@ -27,7 +28,7 @@ def _get_salesforce_model_names():
     return [_get_model_name(size, data) for size, data in product(sizes, data)]
 
 
-class HuggingFaceEmbeddingConfig(RefBaseModel)):
+class HuggingFaceEmbeddingConfig(RefBaseModel):
     model_config = ConfigDict(protected_namespaces=())
     model_name: str
     tokenizer_config: dict = {}

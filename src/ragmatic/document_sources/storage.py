@@ -1,8 +1,6 @@
-import os
-from ragmatic.utils.refs import RefBaseModel, Field
 from .bases import DocumentSourceBase
 from ..storage.store_factory import get_store_cls
-from ..storage.bases import TextDocumentStore, VectorStore
+from ..storage.bases import TextDocumentStore
 from ..common_types import StoreConfig
 
 

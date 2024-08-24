@@ -1,5 +1,3 @@
-import os
-
 from .bases import RagAgentBase
 from ragmatic.utils import ALLOWED_FILE_TYPES
 

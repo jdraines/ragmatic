@@ -1,11 +1,11 @@
 import os
 import typing as t
-from ragmatic.utils.refs import RefBaseModel, Field
+from ragmatic.utils.refs import RefBaseModel
 from .bases import DocumentSourceBase
 from ragmatic.utils import ALLOWED_FILE_TYPES
 
 
-class FilesystemDocumentSourceConfig(RefBaseModel)):
+class FilesystemDocumentSourceConfig(RefBaseModel):
     root_path: str
 
 

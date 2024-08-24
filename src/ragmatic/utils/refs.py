@@ -1,5 +1,5 @@
 from typing import Union, get_args, get_origin
-from pydantic import (BaseModel)
+from pydantic import BaseModel, ConfigDict
 from pydantic._internal._model_construction import ModelMetaclass
 
 import yaml
@@ -101,6 +101,4 @@ class RefBaseModel(BaseModel, metaclass=RefModelMetaclass):
                     obj[field_name] = field_type.model_validate(field_value)
         return super().model_validate(obj, *args, **kwargs)
 
-
-    class Config:
-        arbitrary_types_allowed = True
+    model_config = ConfigDict(arbitrary_types_allowed=True)
