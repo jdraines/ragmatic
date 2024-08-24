@@ -1,8 +1,8 @@
 import typing as t
-from pydantic import BaseModel, ConfigDict
+from ragmatic.utils.refs import RefBaseModel, ConfigDict
 from ragmatic.common_types import TypeAndConfig
 
-class ActionConfig(BaseModel):
+class ActionConfig(RefBaseModel)):
 
     document_source: t.Optional[t.Union[str, TypeAndConfig]] = None
     model_config = ConfigDict(extra= "allow")

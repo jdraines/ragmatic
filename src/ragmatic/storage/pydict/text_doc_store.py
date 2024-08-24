@@ -2,12 +2,12 @@ import typing as t
 import pickle
 import os
 
-from pydantic import BaseModel, Field
+from ragmatic.utils.refs import RefBaseModel, Field
 
 from ..bases import TextDocumentStore
 
 
-class PydictTextDocumentStoreConfig(BaseModel):
+class PydictTextDocumentStoreConfig(RefBaseModel)):
     overwrite: t.Optional[bool] = Field(default=False)
     filepath: t.Optional[str] = Field(default=None)
     allow_init: t.Optional[bool] = Field(default=True)

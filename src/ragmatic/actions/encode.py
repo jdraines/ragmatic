@@ -1,7 +1,7 @@
 import typing as t
 from logging import getLogger
 
-from pydantic import BaseModel
+from ragmatic.utils.refs import RefBaseModel
 
 from ragmatic.storage.store_factory import get_store_cls
 from ragmatic.storage.bases import TextDocumentStore, VectorStore

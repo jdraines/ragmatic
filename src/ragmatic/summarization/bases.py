@@ -2,7 +2,7 @@ from typing import List, Callable, Optional
 import os
 from logging import getLogger
 
-from pydantic import BaseModel, Field
+from ragmatic.utils.refs import RefBaseModel, Field
 from tqdm.contrib.concurrent import thread_map
 
 from ..llm_ops.bases import LLMClientBase
@@ -15,7 +15,7 @@ from ragmatic.common_types import TypeAndConfig
 logger = getLogger(__name__)
 
 
-class SummarizerConfig(BaseModel):
+class SummarizerConfig(RefBaseModel)):
     llm: TypeAndConfig
     document_source: TypeAndConfig
 

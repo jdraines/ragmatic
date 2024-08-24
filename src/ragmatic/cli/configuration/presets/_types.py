@@ -2,7 +2,30 @@ from string import Template
 import typing as t
 import json
 
+from ragmatic.utils.refs import (
+    ref_dumper_default,
+    RefDecoder,
+)
 from .._types import MasterConfig
+
+
+class Reference:
+
+    def __init__(self, location: str):
+        self.location = location
+
+    def dereference(self, config: t.Dict):
+        return self._get_value(config, self.location)
+
+    def _get_value(self, config: t.Dict, location: str):
+        keys = location.split('.')
+        value = config
+        for key in keys:
+            if isinstance(value, list):
+                value = value[int(key)]
+            else:
+                value = value[key]
+        return value
 
 
 class PresetData:
@@ -41,7 +64,7 @@ class PresetData:
                 raise ValueError(f"Unknown variable: {v}")
         variables = self.variable_defaults.copy()
         variables.update(vars)
-        json_config = json.dumps(config)
+        json_config = json.dumps(config, default=ref_dumper_default)
         json_config = Template(json_config).substitute(variables)
-        return json.loads(json_config)
+        return json.loads(json_config, cls=RefDecoder)
     

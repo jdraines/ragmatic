@@ -2,7 +2,7 @@ import typing as t
 from typing import List, Callable, Optional
 import os
 
-from pydantic import BaseModel, Field, ConfigDict
+from ragmatic.utils.refs import RefBaseModel, Field, ConfigDict
 from ..llm_ops.bases import LLMClientBase
 from ..llm_ops.client_factory import get_llm_client_class
 from ..storage.store_factory import get_store_cls
@@ -13,7 +13,7 @@ from ragmatic.utils import CollectionKeyFormatter
 from ragmatic.common_types import TypeAndConfig, StoreConfig
 from ..document_sources.bases import DocumentSourceBase
 
-class RagAgentConfig(BaseModel):
+class RagAgentConfig(RefBaseModel)):
     llm: t.Union[TypeAndConfig, str]
     storage: t.Union[StoreConfig, str]
     encoder: t.Union[TypeAndConfig, str]

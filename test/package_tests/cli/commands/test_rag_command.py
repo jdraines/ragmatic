@@ -2,7 +2,7 @@ import pytest
 from click.testing import CliRunner
 from ragmatic.cli.commands import rag
 from ragmatic.cli.configuration.presets.local_docs_preset import local_docs_preset
-from unittest.mock import patch, MagicMock, Mock
+from unittest.mock import MagicMock
 
 
 @pytest.fixture

@@ -1,0 +1,12 @@
+project_name: test_project
+components:
+  document_sources:
+    local_python_package_2:
+      type: pycode_filesystem
+      config:
+        root_path: ./src2
+  encoders:
+    plaintext:
+      type: hugging_face
+      config:
+        model_name: "test_model"

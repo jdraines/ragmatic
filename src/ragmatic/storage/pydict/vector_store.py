@@ -6,7 +6,7 @@ import re
 from collections import OrderedDict
 from logging import getLogger
 
-from pydantic import BaseModel, Field
+from ragmatic.utils.refs import RefBaseModel, Field
 
 from ..bases import VectorStore
 
@@ -90,7 +90,7 @@ class CosineSimilarity(QueryMethod):
         return vector, matrix
 
 
-class PydictVectorStoreConfig(BaseModel):
+class PydictVectorStoreConfig(RefBaseModel)):
     filepath: t.Optional[str] = Field(default='vectors.pkl')
     default_query_method: t.Optional[str] = Field(default="cosine_similarity")
     overwrite: t.Optional[bool] = Field(default=False)

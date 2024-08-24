@@ -6,7 +6,6 @@ import click
 from ..configuration._types import MasterConfig
 from ..configuration.tools import (
     load_config,
-    get_action_config_factory,
     merge_defaults,
 )
 from ...actions.bases import Action
@@ -39,8 +38,6 @@ def run_cmd(pipeline: t.Union[str, None], config: click.Path, preset: str, var: 
     for element in pipeline_config:
         action_name = element.action
         action_cls: t.Type[Action] = get_action_cls(action_name)
-        action_config_factory = get_action_config_factory(action_name, config)
-        action_config = action_config_factory.dereference_action_config(element.config)
-        action: Action = action_cls(action_config)
+        action: Action = action_cls(element.config)
         logger.info(f"Running action: {action_name}")
         action.execute()

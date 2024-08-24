@@ -1,6 +1,6 @@
 from .factory import import_object
 from .collection_key_formatter import CollectionKeyFormatter
-from .yaml_ import ragmatic_load_yaml
+from .refs import ragmatic_load_yaml
 
 
 ALLOWED_FILE_TYPES = [

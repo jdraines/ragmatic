@@ -51,19 +51,14 @@ def pipelines():
 
 
 def test_run_cmd(runner, pipelines, mock_action, monkeypatch):
-    action_config_factory = MagicMock()
     mock_action_class = MagicMock(return_value=mock_action)
     monkeypatch.setattr("ragmatic.cli.commands.run.get_action_cls", lambda x: mock_action_class)
-    action_config_factory.dereference_action_config = MagicMock(return_value={})
-    action_config_factory_getter = MagicMock(return_value=action_config_factory)
-    monkeypatch.setattr("ragmatic.cli.commands.run.get_action_config_factory", action_config_factory_getter)
     with patch("ragmatic.cli.commands.run.get_preset") as mock_get_preset:
         mock_preset = MagicMock()
         mock_preset.get_config.return_value = MagicMock(
             pipelines=pipelines
         )
         mock_get_preset.return_value = mock_preset
-
         result = runner.invoke(run_cmd, ["test_pipeline", "--preset", "local_docs"])
         assert result.exit_code == 0
     
@@ -77,15 +72,3 @@ def test_run_cmd_no_pipeline(runner):
         result = runner.invoke(run_cmd, ["--preset", "local_docs"])
 
         assert result.exit_code == 0
-
-
-# def test_run_cmd_invalid_pipeline(runner):
-#     with patch("ragmatic.cli.commands.run.get_preset") as mock_get_preset:
-#         mock_preset = MagicMock()
-#         mock_preset.get_config.return_value = MagicMock(pipelines={})
-#         mock_get_preset.return_value = mock_preset
-
-#         result = runner.invoke(run_cmd, ["invalid_pipeline", "--preset", "local_docs"])
-
-#         assert result.exit_code != 0
-#         assert "Error: Invalid value for 'PIPELINE'" in result.output

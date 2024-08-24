@@ -1,14 +1,14 @@
 import os
 import typing as t
 
-from pydantic import BaseModel, Field
+from ragmatic.utils.refs import RefBaseModel, Field
 
 from ..bases import OmniStore
 from .vector_store import PydictVectorStore
 from .text_doc_store import PydictTextDocumentStore
 
 
-class PydictOmniStoreConfig(BaseModel):
+class PydictOmniStoreConfig(RefBaseModel)):
     dirpath: t.Optional[str] = Field(default=None)
     overwrite: t.Optional[bool] = Field(default=True)
 

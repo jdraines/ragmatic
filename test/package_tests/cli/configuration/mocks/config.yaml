@@ -1,0 +1,63 @@
+project_name: hello_printer
+components:
+  document_sources:
+    local_python_package:
+      type: pycode_filesystem
+      config:
+        root_path: ./src
+    localpy_storage:
+      type: storage
+      config: !ref components.storage.localpy
+  storage:
+    localpy:
+      data_type: omni
+      type: pydict
+      config:
+        dirpath: ./data  # a relative path in this case implies you will run the `ragmatic` command within this same directory
+        overwrite: True
+  llms:
+    openai:
+      type: openai
+      config:
+        api_keyenvvar: OPENAI_API_KEY
+  summarizers:
+    pycode:
+      type: python_code
+      config:
+        llm: !ref components.llms.openai
+        document_source: !ref components.document_sources.local_python_package
+  encoders:
+    plaintext:
+      type: hugging_face
+      config:
+        model_name: "dunzhang/stella_en_1.5B_v5"
+        tokenizer_config:
+          return_tensors: pt
+          max_length: 1024
+          truncation: True
+          padding: max_length
+        save_model: False
+  rag_agents:
+    pycode:
+      type: python_code
+      config:
+        llm: !ref components.llms.openai
+        storage: !ref components.storage.localpy
+        encoder: !ref components.encoders.plaintext
+pipelines:
+  ingest-python-codebase:
+    - action: summarize
+      config:
+        root_path: ./src
+        summarizer: !ref components.summarizers.pycode
+        storage: !ref components.storage.localpy
+        document_source: !ref components.document_sources.local_python_package
+    - action: encode
+      config:
+        encoder: !ref components.encoders.plaintext
+        document_source: !ref components.document_sources.localpy_storage
+        storage: !ref components.storage.localpy
+rag_query_command:
+  rag_agent: !ref components.rag_agents.pycode
+  document_source: !ref components.document_sources.local_python_package
+  

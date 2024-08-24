@@ -9,7 +9,16 @@ def summarize_config():
     return SummarizeActionConfig(
         summarizer=SummarizerComponentConfig(
             type="python_code",
-            config={"llm": "test_llm"}
+            config={
+                "llm": {
+                    "type": "openai",
+                    "config": {"api_keyenvvar": "OPENAI_API_KEY"}
+                },
+                "document_source": {
+                    "type": "storage",
+                    "config": {}
+                }
+            }
         ),
         storage=StorageComponentConfig(data_type="metadata", type="pydict", config={}),
         document_source=TypeAndConfig(type="storage", config={})

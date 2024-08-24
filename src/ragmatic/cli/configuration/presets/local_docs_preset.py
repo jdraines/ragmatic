@@ -1,4 +1,4 @@
-from ._types import PresetData
+from ._types import PresetData, Reference
 
 variable_defaults = {
     "local_documents_path": "./documents",
@@ -7,71 +7,83 @@ variable_defaults = {
     "n_nearest": 10
 }
 
-
-_component_config = {
-    "document_sources": {
-        "local_directory": {
-            "type": "filesystem",
-            "config": {
-                "root_path": "${local_documents_path}"
-            }
-        }
-    },
-    "storage": {
-        "localpy": {
-            "data_type": "omni",
-            "type": "pydict",
-            "config": {
-                "dirpath": "./data",
-                "overwrite": True
-            }
-        }
-    },
-    "llms": {
-        "openai": {
-            "type": "openai",
-            "config": {
-                "api_keyenvvar": "OPENAI_API_KEY"
-            }
-        }
-    },
-    "summarizers": {
-        "pycode": {
-            "type": "python_code",
-            "config": {
-                "llm": "openai"
-            }
-        }
-    },
-    "encoders": {
-        "plaintext": {
-            "type": "hugging_face",
-            "config": {
-                "model_name": "${encoding_model_name}",
-                "tokenizer_config": {
-                    "return_tensors": "pt",
-                    "max_length": 1024,
-                    "truncation": True,
-                    "padding": "max_length"
-                },
-                "save_model": False,
-                "expected_hidden_size": "${expected_hidden_size}"
-            }
-        }
-    },
-    "rag_agents": {
-        "generic": {
-            "type": "generic",
-            "config": {
-                "llm": "openai",
-                "storage": "localpy",
-                "encoder": "plaintext",
-                "n_nearest": "${n_nearest}",
-                "prompt": "",
-                "system_prompt": ""
-            }
+doc_sources = {
+    "local_directory": {
+        "type": "filesystem",
+        "config": {
+            "root_path": "${local_documents_path}"
         }
     }
+}
+
+storage = {
+    "localpy": {
+        "data_type": "omni",
+        "type": "pydict",
+        "config": {
+            "dirpath": "./data",
+            "overwrite": True
+        }
+    }
+}
+
+llms = {
+    "openai": {
+        "type": "openai",
+        "config": {
+            "api_keyenvvar": "OPENAI_API_KEY",
+        }
+    }
+}
+
+summarizers = {
+    "pycode": {
+        "type": "python_code",
+        "config": {
+            "document_source": doc_sources["local_directory"],
+            "llm": llms["openai"],
+        }
+    }
+}
+
+encoders = {
+    "plaintext": {
+        "type": "hugging_face",
+        "config": {
+            "model_name": "${encoding_model_name}",
+            "tokenizer_config": {
+                "return_tensors": "pt",
+                "max_length": 1024,
+                "truncation": True,
+                "padding": "max_length"
+            },
+            "save_model": False,
+            "expected_hidden_size": "${expected_hidden_size}"
+        }
+    }
+}
+
+rag_agents = {
+    "generic": {
+        "type": "generic",
+        "config": {
+            "llm": llms["openai"],
+            "storage": storage["localpy"],
+            "encoder": encoders["plaintext"],
+            "n_nearest": "${n_nearest}",
+            "prompt": "",
+            "system_prompt": ""
+        }
+    }
+}
+
+_component_config = {
+    "document_sources": doc_sources,
+    "storage": storage,
+    "llms": llms,
+    "summarizers": summarizers,
+    "encoders": encoders,
+    "rag_agents": rag_agents
 }
 
 _pipelines_config = {
@@ -79,17 +91,17 @@ _pipelines_config = {
         {
             "action": "encode",
             "config": {
-                "document_source": "local_directory",
-                "encoder": "plaintext",
-                "storage": "localpy"
+                "document_source": doc_sources["local_directory"],
+                "encoder": encoders["plaintext"],
+                "storage": storage["localpy"]
             }
         }
     ]
 }
 
 _rag_query_command_config = {
-    "rag_agent": "generic",
-    "document_source": "local_directory"
+    "rag_agent": rag_agents["generic"],
+    "document_source": doc_sources["local_directory"]
 }
 
 
