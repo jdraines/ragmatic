@@ -4,6 +4,7 @@ from pathlib import Path
 from deepmerge import always_merger, Merger
 
 from ragmatic.utils import ragmatic_load_yaml
+from ragmatic.utils.refs import resolve_references
 from ._types import MasterConfig
 from ..configuration.presets.preset_factory import get_preset, PresetData
 
@@ -64,3 +65,7 @@ def merge_defaults(config: MasterConfig,
         rag_query_command=rag_query_command
     )
 
+def resolve_config_references(config: MasterConfig) -> MasterConfig:
+    config_dict = config.model_dump()
+    resolved_config = resolve_references(config_dict)
+    return MasterConfig(**resolved_config)

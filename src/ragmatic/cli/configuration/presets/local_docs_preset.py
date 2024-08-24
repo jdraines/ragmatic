@@ -1,4 +1,5 @@
-from ._types import PresetData, Reference
+from ._types import PresetData
+from ragmatic.utils.refs import Ref
 
 variable_defaults = {
     "local_documents_path": "./documents",
@@ -67,9 +68,9 @@ rag_agents = {
     "generic": {
         "type": "generic",
         "config": {
-            "llm": llms["openai"],
-            "storage": storage["localpy"],
-            "encoder": encoders["plaintext"],
+            "llm": Ref("components.llms.openai"), 
+            "storage": Ref("components.storage.localpy"),
+            "encoder": Ref("components.encoders.plaintext"), 
             "n_nearest": "${n_nearest}",
             "prompt": "",
             "system_prompt": ""
@@ -91,17 +92,17 @@ _pipelines_config = {
         {
             "action": "encode",
             "config": {
-                "document_source": doc_sources["local_directory"],
-                "encoder": encoders["plaintext"],
-                "storage": storage["localpy"]
+                "document_source": Ref("components.document_sources.local_directory"),
+                "encoder": Ref("components.encoders.plaintext"),
+                "storage": Ref("components.storage.localpy")
             }
         }
     ]
 }
 
 _rag_query_command_config = {
-    "rag_agent": rag_agents["generic"],
-    "document_source": doc_sources["local_directory"]
+    "rag_agent": Ref("components.rag_agents.generic"),
+    "document_source": Ref("components.document_sources.local_directory")
 }
 
 

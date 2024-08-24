@@ -1,6 +1,7 @@
 import pytest
 from pathlib import Path
 
+from ragmatic.utils.refs import Ref
 from ragmatic.cli.configuration import tools
 from ragmatic.cli.configuration.presets.local_docs_preset import local_docs_preset
 
@@ -28,11 +29,10 @@ def test_load_configdict(mock_config_path):
     assert config
 
 
-def test_ref_resolution(mock_config_path):
+def test_ref_construction(mock_config_path):
     config = tools.load_configdict(mock_config_path)
     # pick a ref to check
-    assert config["components"]["storage"]["localpy"] ==\
-        config["components"]["rag_agents"]["pycode"]["config"]["storage"]
+    assert isinstance(config["components"]["rag_agents"]["pycode"]["config"]["storage"], Ref)
 
 
 def test_load_config(mock_config_path):

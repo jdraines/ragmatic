@@ -1,3 +1,4 @@
+from logging import getLogger
 from typing import Union, get_args, get_origin
 from pydantic import BaseModel, ConfigDict
 from pydantic._internal._model_construction import ModelMetaclass
@@ -7,9 +8,15 @@ import json
 import copy
 
 
+logger = getLogger(__name__)
+
+
 class Ref:
     def __init__(self, loc):
         self.loc = loc
+
+    def __eq__(self, value: object) -> bool:
+        return isinstance(value, Ref) and value.loc == self.loc
 
 
 def ref_constructor(loader, node):
@@ -46,8 +53,7 @@ def resolve_ref(data, loc):
 
 
 def ragmatic_load_yaml(stream):
-    data = yaml.safe_load(stream)
-    return resolve_references(data)
+    return yaml.safe_load(stream)
 
 
 def ref_dumper_default(obj):
@@ -62,7 +68,11 @@ class RefDecoder(json.JSONDecoder):
         super().__init__(object_hook=self._object_hook, *args, **kwargs)
 
     def _object_hook(self, obj):
-        if isinstance(obj, str) and obj.startswith("!ref"):
+        if isinstance(obj, dict):
+            return {key: self._object_hook(value) for key, value in obj.items()}
+        elif isinstance(obj, list):
+            return [self._object_hook(item) for item in obj]
+        if isinstance(obj, str) and obj.startswith("!ref "):
             obj: str = obj
             loc = obj.replace('!ref ', '')
             return Ref(loc)

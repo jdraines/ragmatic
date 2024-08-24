@@ -9,25 +9,6 @@ from ragmatic.utils.refs import (
 from .._types import MasterConfig
 
 
-class Reference:
-
-    def __init__(self, location: str):
-        self.location = location
-
-    def dereference(self, config: t.Dict):
-        return self._get_value(config, self.location)
-
-    def _get_value(self, config: t.Dict, location: str):
-        keys = location.split('.')
-        value = config
-        for key in keys:
-            if isinstance(value, list):
-                value = value[int(key)]
-            else:
-                value = value[key]
-        return value
-
-
 class PresetData:
 
     def __init__(self,

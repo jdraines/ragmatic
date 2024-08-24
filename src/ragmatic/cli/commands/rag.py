@@ -4,7 +4,8 @@ from logging import getLogger
 from ragmatic.cli.configuration.tools import (
     load_config,
     merge_defaults,
-    MasterConfig
+    MasterConfig,
+    resolve_config_references
 )
 from ragmatic.actions.rag import RagActionConfig, RagAction
 from ..configuration.presets.preset_factory import get_preset
@@ -25,6 +26,7 @@ def rag_cmd(config: click.Path, query: str, preset: str, var: list):
     config: MasterConfig = load_config(config) if config else preset_config
     if config != preset_config:
         config = merge_defaults(config, preset_data, **vars)
+    config = resolve_config_references(config)
     cmd_config = config.rag_query_command
     rag_agent_component_config = cmd_config.rag_agent
     rag_action_config = RagActionConfig(
