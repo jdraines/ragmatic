@@ -1,23 +1,6 @@
-import importlib
-
-
-def import_object(import_path):
-    module_path, class_name = import_path.rsplit(".", 1)
-    module = importlib.import_module(module_path)
-    return getattr(module, class_name)
-
-
-class CollectionKeyFormatter:
-
-    delim = "::"
-
-    @staticmethod
-    def flatten_collection_key(collection_name, index):
-        return f"{collection_name}{CollectionKeyFormatter.delim}{index}"
-
-    @staticmethod
-    def extract_collection_name(key):
-        return key.split(CollectionKeyFormatter.delim)[0]
+from .factory import import_object
+from .collection_key_formatter import CollectionKeyFormatter
+from .yaml_ import ragmatic_load_yaml
 
 
 ALLOWED_FILE_TYPES = [
