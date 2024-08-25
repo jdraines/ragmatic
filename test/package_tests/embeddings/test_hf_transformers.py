@@ -154,7 +154,7 @@ class TestHfTransformersEmbedder:
         assert hft_embedder._tokenizer == mock_tokenizer
 
     def test__init_auto_model_class(self, hfe_configdict):
-        hfe = hf_transformers.HuggingFaceTransformerEmbedder(hfe_configdict)
+        hfe = hf_transformers.HfTransformersEmbedder(hfe_configdict)
         assert hfe._init_auto_model_class() == AutoModel
         hfe.model_name = "Salesforce/codegen-2B-multi"
         assert hfe._init_auto_model_class() == AutoModelForCausalLM

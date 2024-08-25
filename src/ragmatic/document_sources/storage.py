@@ -10,8 +10,9 @@ class TextStoreDocumentSource(DocumentSourceBase):
     name = "storage"
 
     def __init__(self, config: StoreConfig):
+        if isinstance(config, dict):
+            config = StoreConfig(**config)
         super().__init__(config)
-        self.config = config
         self._text_doc_store: TextDocumentStore = self._initialize_text_doc_store()
     
     def _initialize_text_doc_store(self):

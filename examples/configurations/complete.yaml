@@ -26,7 +26,6 @@ components:
       type: python_code
       config:
         llm: !ref components.llms.openai
-        document_source: !ref components.document_sources.local_python_package
   encoders:
     plaintext:
       type: hf_sentence_transformers
@@ -58,3 +57,4 @@ pipelines:
 rag_query_command:
   rag_agent: !ref components.rag_agents.pycode
   document_source: !ref components.document_sources.local_python_package
+  

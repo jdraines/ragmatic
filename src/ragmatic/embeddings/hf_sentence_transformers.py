@@ -72,12 +72,19 @@ class HfSentenceTransformersEmbedder(Embedder):
         overlap = overlap or self.overlap
         tokens = text.split()
         chunks = []
+        longest = 0
         for i in range(0, len(tokens), chunk_size - overlap):
             chunk = tokens[i : i + chunk_size]
-            if len(chunk) < chunk_size:
-                chunk += ["[PAD]"] * (chunk_size - len(chunk))
-            chunks.append(" ".join(chunk))
-        return chunks
+            longest = max(longest, len(chunk))
+            chunks.append(chunk)
+        if len(chunks) > 1:
+            for i in range(len(chunks)):
+                chunk = chunks[i]
+                if len(chunk) < longest:
+                    new_bits = ["[PAD]"] * (longest - len(chunk))
+                    chunk.extend(new_bits)
+                    chunks[i] = " ".join(chunk)
+        return [" ".join(c) for c in chunks]
 
     def _encode_doc(self, doc, query=False):
         query_prompt = self.query_prompt_name if query else None
