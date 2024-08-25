@@ -28,16 +28,18 @@ def _get_salesforce_model_names():
     return [_get_model_name(size, data) for size, data in product(sizes, data)]
 
 
-class HuggingFaceEmbeddingConfig(RefBaseModel):
+class HfTransformersEmbeddingConfig(RefBaseModel):
     model_config = ConfigDict(protected_namespaces=())
     model_name: str
     tokenizer_config: dict = {}
     save_filepath: str = "embedding_model.pkl"
     save_model: bool = True
     expected_hidden_size: int = 1024
+    chunk_size: int = 512
+    overlap: int = 128
 
-class HuggingFaceTransformerEmbedder(Embedder):
-    embedder_name = "hugging_face"
+class HfTransformersEmbedder(Embedder):
+    embedder_name = "hf_transformer"
     _causal_lm_models = {
         *_get_salesforce_model_names(),
     }
@@ -79,12 +81,12 @@ class HuggingFaceTransformerEmbedder(Embedder):
 
     def _download_model(self):
         logger.info(f"Loading model {self.model_name!r}")
-        self._model = self._auto_model_class.from_pretrained(self.model_name)
+        self._model = self._auto_model_class.from_pretrained(self.model_name, trust_remote_code=True)
         if self.save_model:
             logger.info(f"Saving model to {self.save_filepath}")
             self._model.save(self.save_filepath)
         logger.info(f"Loading tokenizer {self.model_name!r}")
-        self._tokenizer = AutoTokenizer.from_pretrained(self.model_name)
+        self._tokenizer = AutoTokenizer.from_pretrained(self.model_name, trust_remote_code=True)
         if self.save_model:
             tokenizer_filepath = (
                 os.path.dirname(self.save_filepath) + "/tokenizer.pkl"
@@ -103,7 +105,7 @@ class HuggingFaceTransformerEmbedder(Embedder):
         logger.info(f"Loading tokenizer from  {tokenizer_filepath}")
         self._tokenizer = AutoTokenizer.from_pretrained(tokenizer_filepath)
 
-    def encode(self, docs: t.Sequence[str]) -> t.Sequence[t.Sequence[float]]:
+    def encode(self, docs: t.Sequence[str], query: bool = False) -> t.Sequence[t.Sequence[float]]:
         embeddings = []
         for doc in tqdm.tqdm(docs):
             if not doc:
@@ -120,7 +122,9 @@ class HuggingFaceTransformerEmbedder(Embedder):
             return AutoModelForCausalLM
         return AutoModel
 
-    def chunk_text(self, text, chunk_size=1024, overlap=256):
+    def chunk_text(self, text, chunk_size=None, overlap=None):
+        chunk_size = chunk_size or self.chunk_size
+        overlap = overlap or self.overlap
         tokens = self.tokenizer.tokenize(text)
         chunks = []
         for i in range(0, len(tokens), chunk_size - overlap):
@@ -140,7 +144,10 @@ class HuggingFaceTransformerEmbedder(Embedder):
         return torch.mean(embedding_stack, dim=0).numpy()
 
     def _encode_chunk(self, doc):
-        self.tokenizer.pad_token = self.tokenizer.eos_token
+        if not self.tokenizer.pad_token and self.tokenizer.eos_token:
+            self.tokenizer.pad_token = self.tokenizer.eos_token
+        else:
+            self.tokenizer.pad_token = '[PAD]'
         inputs = self.tokenizer(doc, **self.tokenizer_config)
         with torch.no_grad():
             outputs = self.model(**inputs, output_hidden_states=True)

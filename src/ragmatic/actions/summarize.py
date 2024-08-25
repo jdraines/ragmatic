@@ -28,7 +28,6 @@ class SummarizeAction(Action):
     
     def __init__(self, config: SummarizeActionConfig):
         super().__init__(config)
-        self.config = config
         self._text_doc_store: TextDocumentStore = self._initialize_storage()
         self._summarizer: SummarizerBase = self._initialize_summarizer()
         self._source: DocumentSourceBase = self._initialize_document_source()

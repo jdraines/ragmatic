@@ -19,7 +19,7 @@ class LLMComponentConfig(RefBaseModel):
 
 
 class EncoderComponentConfig(RefBaseModel):
-    type: t.Literal["hugging_face"]
+    type: str
     config: dict = Field(default_factory=dict)
 
 

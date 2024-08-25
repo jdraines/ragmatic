@@ -4,7 +4,7 @@ from ragmatic.utils.refs import RefBaseModel
 
 class TypeAndConfig(RefBaseModel):
     type: str
-    config: t.Union[dict, str]
+    config: dict
 
 
 class StoreConfig(RefBaseModel):

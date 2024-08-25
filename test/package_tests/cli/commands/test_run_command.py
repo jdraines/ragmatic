@@ -3,13 +3,19 @@ from click.testing import CliRunner
 from ragmatic.cli.commands.run import run_cmd
 from ragmatic.cli.configuration.presets.local_docs_preset import local_docs_preset
 from ragmatic.cli.configuration._types import PipelineElementConfig
-from ragmatic.actions.bases import Action
+from ragmatic.actions.bases import Action, ActionConfig
 from unittest.mock import patch, MagicMock
 import logging
 import os
 
 
+class MockActionConfig(ActionConfig):
+    pass
+
+
 class MockAction(Action):
+
+    config_cls = MockActionConfig
 
     def __init__(self, config):
         super().__init__(config)
@@ -21,7 +27,14 @@ class MockAction(Action):
 
 @pytest.fixture
 def mock_action():
-    return MockAction({})
+    return MockAction(
+        ActionConfig(**{
+            "document_source": {
+                "type": "test_document_source",
+                "config": {}
+            }
+        })
+    )
 
 
 @pytest.fixture
@@ -44,7 +57,10 @@ def pipelines():
             dict(
                 action="mock",
                 config={
-                    "document_source": "test_document_source",
+                    "document_source": {
+                        "type": "test_document_source",
+                        "config": {}
+                    }
                 }
             )
         ]

@@ -6,4 +6,4 @@ export TOKENIZERS_PARALLELISM=false
 ragmatic rag-query \
     -v local_documents_path=./book \
     -v n_nearest=3 \
-    --query "Who found Eeyore's tail? Can you quote the text that describes the event?"
+    --query "Who found Eeyore's tail?"

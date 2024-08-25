@@ -18,12 +18,12 @@ if not transformers_installed:
     )
 
 
-from ragmatic.embeddings import hugging_face
+from ragmatic.embeddings import hf_transformers
 
 
 @pytest.fixture
 def hfe_config():
-    return hugging_face.HuggingFaceEmbeddingConfig(
+    return hf_transformers.HfTransformersEmbeddingConfig(
         model_name="test_model",
         tokenizer_config={"test": "config"},
         save_filepath="test_filepath",
@@ -80,7 +80,7 @@ def mock_tokenizer(mock_tokenizer_outputs):
 def mock_auto_tokenizer(monkeypatch, mock_tokenizer):
     auto_tokenizer = MagicMock()
     auto_tokenizer.from_pretrained.return_value = mock_tokenizer
-    monkeypatch.setattr(hugging_face, "AutoTokenizer", auto_tokenizer)
+    monkeypatch.setattr(hf_transformers, "AutoTokenizer", auto_tokenizer)
     return auto_tokenizer
 
 
@@ -89,16 +89,16 @@ def hft_embedder(
     hfe_configdict, monkeypatch, mock_autoloader, mock_auto_tokenizer
 ):
     monkeypatch.setattr(
-        hugging_face.HuggingFaceTransformerEmbedder,
+        hf_transformers.HfTransformersEmbedder,
         "_init_auto_model_class",
         lambda x: MagicMock(),
     )
-    hfe = hugging_face.HuggingFaceTransformerEmbedder(hfe_configdict)
+    hfe = hf_transformers.HfTransformersEmbedder(hfe_configdict)
     hfe._auto_model_class = mock_autoloader
     return hfe
 
 
-class TestHuggingFaceTransformerEmbedder:
+class TestHfTransformersEmbedder:
     @pytest.fixture
     def mock_zeros_tensor(self):
         return np.zeros((1, 1024))
@@ -154,7 +154,7 @@ class TestHuggingFaceTransformerEmbedder:
         assert hft_embedder._tokenizer == mock_tokenizer
 
     def test__init_auto_model_class(self, hfe_configdict):
-        hfe = hugging_face.HuggingFaceTransformerEmbedder(hfe_configdict)
+        hfe = hf_transformers.HuggingFaceTransformerEmbedder(hfe_configdict)
         assert hfe._init_auto_model_class() == AutoModel
         hfe.model_name = "Salesforce/codegen-2B-multi"
         assert hfe._init_auto_model_class() == AutoModelForCausalLM
@@ -175,7 +175,7 @@ class TestHuggingFaceTransformerEmbedder:
             ),
         )
         monkeypatch.setattr(
-            hugging_face.os.path,
+            hf_transformers.os.path,
             "exists",
             lambda x: True if x == "exists" else False,
         )
@@ -246,6 +246,6 @@ class TestHuggingFaceTransformerEmbedder:
             hft_embedder.process_hidden_state(hidden_state, attention_mask, pooling_strategy="invalid")
     
     def test__silence_loggers(self, hft_embedder, monkeypatch):
-        monkeypatch.setattr(hugging_face.logging, "getLogger", MagicMock())
+        monkeypatch.setattr(hf_transformers.logging, "getLogger", MagicMock())
         hft_embedder._silence_loggers()
         assert True

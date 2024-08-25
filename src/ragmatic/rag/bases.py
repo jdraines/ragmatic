@@ -1,6 +1,4 @@
-import typing as t
 from typing import List, Callable, Optional
-import os
 
 from ragmatic.utils.refs import RefBaseModel
 from pydantic import Field, ConfigDict
@@ -15,9 +13,9 @@ from ragmatic.common_types import TypeAndConfig, StoreConfig
 from ..document_sources.bases import DocumentSourceBase
 
 class RagAgentConfig(RefBaseModel):
-    llm: t.Union[TypeAndConfig, str]
-    storage: t.Union[StoreConfig, str]
-    encoder: t.Union[TypeAndConfig, str]
+    llm: TypeAndConfig
+    storage: StoreConfig
+    encoder: TypeAndConfig
     n_nearest: Optional[int] = 10
     prompt: Optional[str] = Field(default="")
     system_prompt: Optional[str] = Field(default="")
@@ -57,7 +55,7 @@ class RagAgentBase:
         return embedder_class(embedder_config)
     
     def query(self, query: str):
-        encoded_query = self._embedder.encode([query])[0]
+        encoded_query = self._embedder.encode([query], query=True)[0]
         doc_name_matches = self._vector_store.query_byvector(encoded_query, self._n)
         doc_names = [CollectionKeyFormatter.extract_collection_name(match) for match in doc_name_matches]
         context_docs = self._document_source.get_documents(doc_names)

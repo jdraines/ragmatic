@@ -3,8 +3,8 @@ from ragmatic.utils.refs import Ref
 
 variable_defaults = {
     "local_documents_path": "./documents",
-    "encoding_model_name": "dunzhang/stella_en_1.5B_v5",
-    "expected_hidden_size": 1536,
+    "encoding_model_name": "dunzhang/stella_en_400M_v5",
+    "expected_hidden_size": 1024,
     "n_nearest": 10
 }
 
@@ -49,17 +49,28 @@ summarizers = {
 
 encoders = {
     "plaintext": {
-        "type": "hugging_face",
+        "type": "hf_sentence_transformers",
+        "config": {
+            "model_name": "${encoding_model_name}",
+            "query_prompt_name": "s2p_query",
+            "chunk_size": 512,
+            "overlap": 128
+        }
+    },
+    "plaintext_transformers": {
+        "type": "hf_transformers",
         "config": {
             "model_name": "${encoding_model_name}",
             "tokenizer_config": {
                 "return_tensors": "pt",
-                "max_length": 1024,
+                "max_length": 512,
                 "truncation": True,
-                "padding": "max_length"
+                "padding": "longest"
             },
             "save_model": False,
-            "expected_hidden_size": "${expected_hidden_size}"
+            "expected_hidden_size": "${expected_hidden_size}",
+            "chunk_size": 512,
+            "overlap": 128
         }
     }
 }
