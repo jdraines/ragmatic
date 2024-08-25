@@ -166,8 +166,9 @@ directory.
 Now, to run a RAG query, use the following command:
 
 ```bash
-ragmatic rag-query --config $SCRIPT_DIR/example-config.yaml \
-    --query "What appears to be the main purpose of this code?"
+ragmatic rag-query \
+    --config $SCRIPT_DIR/example-config.yaml \
+    --query "How could I extend behavior of this codebase to perform some special operation following the open/closed principle?"
 ```
 
 What's next?
