@@ -10,7 +10,7 @@ To install Ragmatic, clone this repo and use pip:
 
 ```bash
 git clone https://github.com/jdraines/ragmatic.git
-pip install -e "./ragmatic[hugging-face]"
+pip install -e "./ragmatic[sentence-transformers]"
 ```
 
 Try it out
@@ -56,7 +56,7 @@ Now you can run the RAG agent with the following command:
 ragmatic rag-query \
     -v local_documents_path=./book \
     -v n_nearest=3 \
-    --query "Who found Eeyore's tail? Can you quote the text that describes the event?"
+    --query "Who found Eeyore's tail?"
 ```
 
 A few things to note about the command above. We've set the `local_documents_path` again
@@ -115,15 +115,20 @@ The `project_name` key is a string that is the name of the project. The other ke
 ### components
 
 Ragmatic allows you to configure a number of reusable components. By declaring the components once in the `components`
-section, you can use them in multiple pipelines (or multiple times in the same pipeline). The `components` that are
-configured in Ragmatic are:
+section, you can use them in multiple pipelines (or multiple times in the same pipeline). This is possible because
+Ragmatic supports a `!ref` tag when it parses the config, allowing you to reference any part of the config file, rather
+than needing to copy the exact same configuration in multiple places.
+
+The `components` that are configured in Ragmatic are:
 
 - `document_sources` - literally, the sources of the documents
 - `storage` - storage abstractions that allow you to save and load data between pipeline steps and more long-term as well
 - `llms` - adapters for different language models. (Currently `openai` and `anthropic` are supported.)
-- `summarizers` - a component that allows you to generate new documents from existing ones (e.g. "describg this code file") using an llm
+- `summarizers` - a component that allows you to generate new documents from existing ones (e.g. "describg this code file") using an llm (may ref an llm in the `llms` section)
 - `encoders` - a component that allows you to generate embeddings from text
 - `rag_agents` - a component that puts together the RAG query process. In this component, you reference previously a defined llm, storage adapter, and encoder.
+
+Note that this section is optional, but is recommended in the case that you want to re-use the same component configurations multiple times.
 
 ### pipelines
 
@@ -171,5 +176,4 @@ What's next?
 - I'm hoping to add a FastAPI app that will serve the RAG agent.
 - I'd like to write `DataSource` and `Storage` component adapters that will allow the use
   of a warehouse for documents and a key-value store like Redis for embeddings.
-- To be viable at scale, Ragmatic will need to be stateful in order to allow DataSources
-  to provide incremental updates to the pipeline.
+
