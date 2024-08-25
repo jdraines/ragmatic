@@ -175,5 +175,5 @@ What's next?
 
 - I'm hoping to add a FastAPI app that will serve the RAG agent.
 - I'd like to write `DataSource` and `Storage` component adapters that will allow the use
-  of a warehouse for documents and a key-value store like Redis for embeddings.
+  of s3 or a warehouse for documents and a key-value store like Redis for embeddings.
 
