@@ -32,7 +32,6 @@ class RagAction(Action):
 
     def __init__(self, config: RagActionConfig):
         super().__init__(config)
-        self.config = config
         self._source: DocumentSourceBase = self._initialize_source()
         self._rag_agent: RagAgentBase = self._initialize_rag_agent()
 

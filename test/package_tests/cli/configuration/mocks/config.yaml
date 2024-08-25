@@ -15,7 +15,6 @@ components:
       config:
         dirpath: ./data  # a relative path in this case implies you will run the `ragmatic` command within this same directory
         overwrite: True
-        allow_init: True
   llms:
     openai:
       type: openai
@@ -29,12 +28,15 @@ components:
         document_source: !ref components.document_sources.local_python_package
   encoders:
     plaintext:
-      type: hf_sentence_transformers
+      type: hugging_face
       config:
-        model_name: "dunzhang/stella_en_400M_v5"
-        query_prompt_name: "s2p_query"
-        chunk_size: 512
-        overlap: 128
+        model_name: "dunzhang/stella_en_1.5B_v5"
+        tokenizer_config:
+          return_tensors: pt
+          max_length: 1024
+          truncation: True
+          padding: max_length
+        save_model: False
   rag_agents:
     pycode:
       type: python_code
@@ -58,3 +60,4 @@ pipelines:
 rag_query_command:
   rag_agent: !ref components.rag_agents.pycode
   document_source: !ref components.document_sources.local_python_package
+  

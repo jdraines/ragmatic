@@ -1,5 +1,3 @@
-import os
-
 from .bases import RagAgentBase
 from ragmatic.utils import ALLOWED_FILE_TYPES
 
@@ -13,7 +11,8 @@ class GenericRagAgent(RagAgentBase):
     prompt = (
         "I have a question about some documents in a collection. I'll first ask "
         "my question, and then I'll share a number of documents, all from the collection. "
-        "Please answer my question as it relates to these documents. "
+        "Please answer my question as it relates to these documents, and include "
+        "any relevant sections of text from the documents in your response. "
         "Here's the question, followed by a divider and then the documents:"
     )
 

@@ -1,11 +1,11 @@
 import os
 import typing as t
-from pydantic import BaseModel, Field
+from ragmatic.utils.refs import RefBaseModel
 from .bases import DocumentSourceBase
 from ragmatic.utils import ALLOWED_FILE_TYPES
 
 
-class FilesystemDocumentSourceConfig(BaseModel):
+class FilesystemDocumentSourceConfig(RefBaseModel):
     root_path: str
 
 

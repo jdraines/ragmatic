@@ -1,8 +1,6 @@
-import os
-from pydantic import BaseModel, Field
 from .bases import DocumentSourceBase
 from ..storage.store_factory import get_store_cls
-from ..storage.bases import TextDocumentStore, VectorStore
+from ..storage.bases import TextDocumentStore
 from ..common_types import StoreConfig
 
 
@@ -12,8 +10,9 @@ class TextStoreDocumentSource(DocumentSourceBase):
     name = "storage"
 
     def __init__(self, config: StoreConfig):
+        if isinstance(config, dict):
+            config = StoreConfig(**config)
         super().__init__(config)
-        self.config = config
         self._text_doc_store: TextDocumentStore = self._initialize_text_doc_store()
     
     def _initialize_text_doc_store(self):

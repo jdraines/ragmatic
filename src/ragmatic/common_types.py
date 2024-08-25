@@ -1,13 +1,13 @@
 import typing as t
-from pydantic import BaseModel
+from ragmatic.utils.refs import RefBaseModel
 
 
-class TypeAndConfig(BaseModel):
+class TypeAndConfig(RefBaseModel):
     type: str
-    config: t.Union[dict, str]
+    config: dict
 
 
-class StoreConfig(BaseModel):
+class StoreConfig(RefBaseModel):
     data_type: str
     type: str
     config: dict

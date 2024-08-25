@@ -5,11 +5,9 @@ from ragmatic.cli.configuration.tools import (
     load_config,
     merge_defaults,
     MasterConfig,
-    get_action_config_factory,
-    ActionConfigFactory
+    resolve_config_references
 )
 from ragmatic.actions.rag import RagActionConfig, RagAction
-from ..configuration._types import RagAgentComponentConfig
 from ..configuration.presets.preset_factory import get_preset
 
 
@@ -28,9 +26,9 @@ def rag_cmd(config: click.Path, query: str, preset: str, var: list):
     config: MasterConfig = load_config(config) if config else preset_config
     if config != preset_config:
         config = merge_defaults(config, preset_data, **vars)
+    config = resolve_config_references(config)
     cmd_config = config.rag_query_command
-    rag_agent_component_config: RagAgentComponentConfig =\
-        config.components.rag_agents[cmd_config.rag_agent]
+    rag_agent_component_config = cmd_config.rag_agent
     rag_action_config = RagActionConfig(
         **dict(
             document_source=cmd_config.document_source,
@@ -38,7 +36,4 @@ def rag_cmd(config: click.Path, query: str, preset: str, var: list):
             rag_agent=rag_agent_component_config.model_dump()
         )
     )
-    config_factory: ActionConfigFactory = get_action_config_factory("rag", config)
-    rag_action_config = config_factory.dereference_action_config(rag_action_config)
-
     print(RagAction(rag_action_config).execute())

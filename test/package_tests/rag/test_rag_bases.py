@@ -60,7 +60,7 @@ class TestRagAgentBase:
 
         result = agent.query("test query")
 
-        agent._embedder.encode.assert_called_once_with(["test query"])
+        agent._embedder.encode.assert_called_once_with(["test query"], query=True)
         agent._vector_store.query_byvector.assert_called_once()
         agent._document_source.get_documents.assert_called_once_with(["doc1", "doc2"])
         agent._llm_client.send_message.assert_called_once_with(

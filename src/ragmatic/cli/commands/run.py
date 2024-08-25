@@ -6,8 +6,8 @@ import click
 from ..configuration._types import MasterConfig
 from ..configuration.tools import (
     load_config,
-    get_action_config_factory,
     merge_defaults,
+    resolve_config_references
 )
 from ...actions.bases import Action
 from ...actions.action_factory import get_action_cls
@@ -28,6 +28,9 @@ def run_cmd(pipeline: t.Union[str, None], config: click.Path, preset: str, var: 
     config: MasterConfig = load_config(config) if config else preset_config
     if config != preset_config:
         config = merge_defaults(config, preset_data, **vars)
+    config = resolve_config_references(config)
+    if not config.pipelines:
+        raise ValueError(f"No pipelines found in config: {config}")
     if pipeline is None:
         first_preset_pipeline_name = list(preset_config.pipelines.keys())[0]
         if first_preset_pipeline_name not in config.pipelines:
@@ -39,8 +42,6 @@ def run_cmd(pipeline: t.Union[str, None], config: click.Path, preset: str, var: 
     for element in pipeline_config:
         action_name = element.action
         action_cls: t.Type[Action] = get_action_cls(action_name)
-        action_config_factory = get_action_config_factory(action_name, config)
-        action_config = action_config_factory.dereference_action_config(element.config)
-        action: Action = action_cls(action_config)
+        action: Action = action_cls(element.config)
         logger.info(f"Running action: {action_name}")
         action.execute()

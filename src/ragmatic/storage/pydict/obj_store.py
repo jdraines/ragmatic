@@ -5,7 +5,8 @@ import typing as t
 import re
 import os
 
-from pydantic import BaseModel, Field
+from ragmatic.utils.refs import RefBaseModel
+from pydantic import Field
 
 
 PARALLELIZATION_THRESHOLD = 1_000
@@ -48,7 +49,7 @@ class JoblibParallelMap(MapOp):
         self.parallel = None
 
 
-class PydictObjStoreConfig(BaseModel):
+class PydictObjStoreConfig(RefBaseModel):
     filepath: t.Optional[str] = Field(default="data.pkl")
     always_parallel: t.Optional[bool] = False
     allowed_query_keys: t.Optional[list[str]] = Field(default_factory=list)

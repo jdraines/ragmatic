@@ -1,48 +1,44 @@
 import typing as t
-from pydantic import BaseModel, Field, ConfigDict
+from ragmatic.utils.refs import RefBaseModel
+from pydantic import Field, ConfigDict
 
 from ..summarization.bases import SummarizerConfig
 
 from ..rag.bases import RagAgentConfig
 
 
-class DocumentSourceComponentConfig(BaseModel):
+class DocumentSourceComponentConfig(RefBaseModel):
     type: t.Literal["storage", "filesystem", "pycode_filesystem"]
     config: t.Union[str, dict] = Field(default_factory=dict)
 
 
-class LLMComponentConfig(BaseModel):
+class LLMComponentConfig(RefBaseModel):
     type: str
     config: dict
     model_config = ConfigDict(extra= "allow")
 
 
-class EncoderComponentConfig(BaseModel):
-    type: t.Literal["hugging_face"]
+class EncoderComponentConfig(RefBaseModel):
+    type: str
     config: dict = Field(default_factory=dict)
 
 
-class AnalysisConfig(BaseModel):
+class AnalysisConfig(RefBaseModel):
     analyzer_type: t.Literal["python"]
     storage: str
 
 
-class SummarizerComponentConfig(BaseModel):
-    
-    class SummarizerComponentRefSubconfig(BaseModel):
-        llm: str
-        model_config = ConfigDict(extra= "allow")
-
+class SummarizerComponentConfig(RefBaseModel):
     type: t.Literal["python_code"]
-    config: t.Union[SummarizerComponentRefSubconfig, SummarizerConfig]
+    config: SummarizerConfig
 
 
-class StorageComponentConfig(BaseModel):
+class StorageComponentConfig(RefBaseModel):
     data_type: t.Literal["metadata", "vector", "summary", "omni"]
     type: t.Literal["pydict"]
     config: dict = Field(default_factory=dict)
 
 
-class RagAgentComponentConfig(BaseModel):
+class RagAgentComponentConfig(RefBaseModel):
     type: str
     config: RagAgentConfig

@@ -1,7 +1,7 @@
 import typing as t
 from logging import getLogger
 
-from pydantic import BaseModel
+from ragmatic.utils.refs import RefBaseModel
 
 from ragmatic.storage.store_factory import get_store_cls
 from ragmatic.storage.bases import TextDocumentStore, VectorStore
@@ -16,9 +16,9 @@ logger = getLogger(__name__)
 
 
 class EncodeActionConfig(ActionConfig):
-    encoder: t.Union[str, EncoderComponentConfig]
+    encoder: EncoderComponentConfig
     document_source: TypeAndConfig
-    storage: t.Union[str, StorageComponentConfig]
+    storage: StorageComponentConfig
     
 
 class EncodeAction(Action):
@@ -28,7 +28,6 @@ class EncodeAction(Action):
 
     def __init__(self, config: EncodeActionConfig):
         super().__init__(config)
-        self.config = config
         self._embedder: Embedder = self._initialize_encoder()
         self._source: DocumentSourceBase = self._initialize_source()
         self._vector_store: VectorStore = self._initialize_storage()

@@ -4,7 +4,7 @@ import pytest
 import sys
 import re
 
-from ragmatic.cli.configuration._types import MasterConfig
+from ragmatic.utils.refs import ref_dumper_default, RefDecoder
 from ragmatic.cli.configuration.presets import (
     local_docs_preset,
     pycode_preset
@@ -30,7 +30,7 @@ def _verify_preset_variables(module_name, preset: PresetData):
     for var in preset.variable_defaults:
         assert preset.variable_defaults[var] is not None, f"Variable {var} in {preset} has no default value"
     for confidict in [preset.components, preset.pipelines, preset.rag_query_command]:
-        configjson = json.dumps(confidict)
+        configjson = json.dumps(confidict, default=ref_dumper_default)
         unused = []
         for var in preset.variable_defaults:
             unused.append(var)

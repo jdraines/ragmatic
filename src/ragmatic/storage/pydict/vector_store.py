@@ -6,7 +6,8 @@ import re
 from collections import OrderedDict
 from logging import getLogger
 
-from pydantic import BaseModel, Field
+from ragmatic.utils.refs import RefBaseModel
+from pydantic import Field
 
 from ..bases import VectorStore
 
@@ -47,6 +48,7 @@ class CosineSimilarity(QueryMethod):
             raise ValueError('Query vector must be a numpy array')
         data = OrderedDict(data)
         doc_embeddings_matrix = np.asarray(list(data.values()))
+        logger.debug(f"Matrix shape: {doc_embeddings_matrix.shape}")
         query_vector, doc_embeddings_matrix =\
             CosineSimilarity._check_and_reshape(
                 query_vector,
@@ -56,23 +58,29 @@ class CosineSimilarity(QueryMethod):
             CosineSimilarity._cosine_similarity(
                 query_vector,
                 doc_embeddings_matrix
-            )
-        sorted_indices = np.argsort(similarities).flatten()[::-1]
-        results = [list(data.keys())[i] for i in sorted_indices]
+            ).flatten()
+        sorted_indices_desc = np.argsort(similarities)[::-1].flatten()
+        results = [list(data.keys())[i] for i in sorted_indices_desc]
         if limit := query.get('limit'):
             return results[:limit]
         return results
     
     @staticmethod
-    def _cosine_similarity(v1, v2):
-        dot_product = np.dot(v1, v2.T)
-        norm_v1 = np.linalg.norm(v1, axis=1)
-        norm_v2 = np.linalg.norm(v2, axis=1)
-        return dot_product / (norm_v1[:, None] * norm_v2)
-
+    def _cosine_similarity(v1_single: np.ndarray, matrix: np.ndarray):
+        v1 = v1_single.flatten()
+        dot_product = np.dot(matrix, v1)
+        norm_v1 = np.linalg.norm(v1)
+        norm_matrix = np.linalg.norm(matrix, axis=1)
+        norm_product = norm_v1 * norm_matrix
+        cosine_similarity = dot_product / norm_product
+        return cosine_similarity
 
     @staticmethod
     def _check_and_reshape(vector, matrix):
+        if vector.ndim == 1:
+            logger.info("Reshaping vector to (1, n)")
+            vector = vector.reshape(1, -1)
+        
         if vector.ndim != 2 or vector.shape[0] != 1:
             raise ValueError(f"Vector should have shape (1, n), but has shape {vector.shape}")
         
@@ -90,7 +98,7 @@ class CosineSimilarity(QueryMethod):
         return vector, matrix
 
 
-class PydictVectorStoreConfig(BaseModel):
+class PydictVectorStoreConfig(RefBaseModel):
     filepath: t.Optional[str] = Field(default='vectors.pkl')
     default_query_method: t.Optional[str] = Field(default="cosine_similarity")
     overwrite: t.Optional[bool] = Field(default=False)

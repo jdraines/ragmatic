@@ -11,5 +11,5 @@ class Embedder:
         pass
 
     @abstractmethod
-    def encode(self, docs: t.Sequence[str]) -> t.Sequence[t.Sequence[float]]:
+    def encode(self, docs: t.Sequence[str], query: bool = False) -> t.Sequence[t.Sequence[float]]:
         pass

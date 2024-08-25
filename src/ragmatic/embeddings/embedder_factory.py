@@ -4,7 +4,8 @@ from .bases import Embedder
 
 
 _embedders = {
-    "hugging_face": "ragmatic.embeddings.hugging_face.HuggingFaceTransformerEmbedder",
+    "hf_transformers": "ragmatic.embeddings.hugging_face_transformer.HfTransformersEmbedder",
+    "hf_sentence_transformers": "ragmatic.embeddings.hf_sentence_transformers.HfSentenceTransformersEmbedder",
 }
 
 

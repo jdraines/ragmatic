@@ -4,13 +4,30 @@ from ragmatic.actions.rag import RagAction, RagActionConfig
 from ragmatic.actions._types import RagAgentComponentConfig
 from ragmatic.common_types import TypeAndConfig
 
+type_and_config = {
+    "type": "test_type",
+    "config": {
+        "test_key": "test_value"
+    }
+}
+
+storage_config = {
+    "data_type": "omni",
+    "type": "pydict",
+    "config": {
+        "test_key": "test_value"
+    }
+}
+
+
+
 @pytest.fixture
 def rag_config():
     return RagActionConfig(
         rag_agent=RagAgentComponentConfig(type="test_rag_agent", config={
-            "llm": "test_llm",
-            "storage": "test_storage",
-            "encoder": "test_encoder",
+            "llm": type_and_config,
+            "storage": storage_config,
+            "encoder": type_and_config,
             "n_nearest": 10,
             "prompt": "test prompt",
             "system_prompt": "test system prompt"
